@@ -5,10 +5,7 @@
 %     DEVELOPED : 2017b
 %     FILENAME  : run_vicon_parser.m
 d1 = dir('../Vicon_Nexus_data/*/*.csv');
-
-fpaths = strcat(d1(1).folder, '/', d1(1).name);
 obin = '../parsed_vicon/';
-
 obins = strcat(obin, {'emg/', 'skeleton/'});
 
 cellfun(@utils.checkdir, obins)
