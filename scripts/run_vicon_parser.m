@@ -1,4 +1,9 @@
-%% Script to process entire collection of vicon data 
+%% Script to process entire collection of vicon data
+%     AUTHOR    : Joseph Robinson
+%     DATE      : January-2018
+%     Revision  : 1.0
+%     DEVELOPED : 2017b
+%     FILENAME  : run_vicon_parser.m
 d1 = dir('../Vicon_Nexus_data/*/*.csv');
 
 fpaths = strcat(d1(1).folder, '/', d1(1).name);
@@ -21,8 +26,8 @@ parfor x = 1:nfiles
     end
     try
         [emg_table, skel_table] = parse_vicon(fpaths{x});
-%         writetable(emg_table, fout_emg{x}, 'Delimiter',',');        
-%         writetable(skel_table, fout_skel{x}, 'Delimiter',',');
+        writetable(emg_table, fout_emg{x}, 'Delimiter',',');
+        writetable(skel_table, fout_skel{x}, 'Delimiter',',');
     catch e
         fprintf(1, 'WARNING: [%d] %s thrown exception', x, fpaths{x});
     end

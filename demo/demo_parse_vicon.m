@@ -3,7 +3,7 @@
 %     DATE      : January-2018
 %     Revision  : 1.0
 %     DEVELOPED : 2017b
-%     FILENAME  : parse_vicon.m
+%     FILENAME  : demo_parse_vicon.m
 %
 disp('Demo: BEGIN')
 rdir = mocap_setup();
