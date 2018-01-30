@@ -9,7 +9,7 @@ function DIR_ROOT =  mocap_setup()
 %     DEVELOPED : 2017b
 %     FILENAME  : mocap_setup.m
 %
-dirnames = {'scripts','dataprocess', 'demo'};
+dirnames = {'scripts','dataprocess', 'demo', 'include',};
 
 fpath = which ('mocap_setup');
 
