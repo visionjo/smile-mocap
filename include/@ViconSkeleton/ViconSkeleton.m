@@ -1,4 +1,4 @@
-classdef ViconSkeleton
+classdef ViconSkeleton 
     %VICONSKELETON Summary of this class goes here
     %   Detailed explanation goes here
     
@@ -11,7 +11,7 @@ classdef ViconSkeleton
         CLAV    % front center below neck
         STRN    % front center middle ribs
         RBAK    % back right shoulder blade
-
+        
         LSHO    % left shoulder
         LUPA    % left upper arm
         LELB    % left elbow
@@ -68,7 +68,43 @@ classdef ViconSkeleton
             
             %             cellfun(@(x) x(1:end-2), T.Properties.VariableNames,'uni',false);
         end
-        
+        function cl_out = findAttrValue(obj,attrName,varargin)
+            if ischar(obj)
+                mc = meta.class.fromName(obj);
+            elseif isobject(obj)
+                mc = metaclass(obj);
+            end
+            ii = 0; numb_props = length(mc.PropertyList);
+            cl_array = cell(1,numb_props);
+            for  c = 1:numb_props
+                mp = mc.PropertyList(c);
+                if isempty (findprop(mp,attrName))
+                    error('Not a valid attribute name')
+                end
+                attrValue = mp.(attrName);
+                if attrValue
+                    if islogical(attrValue) || strcmp(varargin{1},attrValue)
+                        ii = ii + 1;
+                        cl_array(ii) = {mp.Name};
+                    end
+                end
+            end
+            cl_out = cl_array(1:ii);
+        end
+        function print(obj, frame_id)
+            if nargin < 2, frame_id = 1;    end
+            fields = fieldnames(obj);
+            nfields = length(fields);
+            str_disp = cell(1, nfields);
+            for x = 1:nfields
+                att = fields{x};
+                vals = obj.(att);
+                str_disp{x} = sprintf('%s: (%d, %d, %d)\n', att, ...
+                    vals(frame_id, 1), vals(frame_id, 2), vals(frame_id, 3));
+            end
+            fprintf([str_disp{:} '\n\n']);
+            %             sprintf(
+        end
         function outputArg = method1(obj,inputArg)
             %METHOD1 Summary of this method goes here
             %   Detailed explanation goes here
