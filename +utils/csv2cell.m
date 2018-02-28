@@ -57,7 +57,7 @@ if nargin == 1
     text = varargin{1};
 elseif nargin == 2
     switch varargin{2}
-        case 'fromfile'
+        case 'fromfile' 
             filename = varargin{1};
             fid = fopen(filename);
             text = char(fread(fid))';
@@ -70,7 +70,6 @@ elseif nargin == 2
 else
     error('CSV2CELL requires 1 or 2 arguments.')
 end
-
 
 % First split it into lines
 lines = regexp(text,'(\r\n|[\r\n])','split'); % lines should now be a cell array of text split by newlines

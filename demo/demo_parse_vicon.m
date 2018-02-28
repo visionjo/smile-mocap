@@ -7,8 +7,8 @@
 %
 disp('Demo: BEGIN')
 rdir = mocap_setup();
-obins = strcat(rdir, '/demo/results/', {'emg/', 'skeleton/'});
-fin = [rdir '/data/Allyson-1-devel.csv'];
+obins = strcat(rdir, '/demo/data/vicon/', {'emg/', 'skeleton/'});
+fin = [rdir '/data/vicon/Allyson-1-devel.csv'];
 
 fbase = utils.basename(fin);
 % create directories if do not exist
