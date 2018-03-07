@@ -10,7 +10,7 @@ function DIR_ROOT =  mocap_setup()
 %     FILENAME  : mocap_setup.m
 %
 dirnames = {'scripts','dataprocess', 'demo', 'include', 'visualize'...
-    'features', 'encode'};
+    'features', 'encode', 'views'};
 
 fpath = which ('mocap_setup');
 
