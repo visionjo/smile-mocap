@@ -22,7 +22,7 @@ function varargout = SkeletonAlignmentViewer(varargin)
 
 % Edit the above text to modify the response to help SkeletonAlignmentViewer
 
-% Last Modified by GUIDE v2.5 06-Mar-2018 20:19:29
+% Last Modified by GUIDE v2.5 06-Mar-2018 20:25:51
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -813,3 +813,35 @@ function slider3_CreateFcn(hObject, eventdata, handles)
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
+
+
+% --- Executes on selection change in popupmenu27.
+function popupmenu27_Callback(hObject, eventdata, handles)
+% hObject    handle to popupmenu27 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu27 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenu27
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu27_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenu27 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in cb_donext.
+function cb_donext_Callback(hObject, eventdata, handles)
+% hObject    handle to cb_donext (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of cb_donext
