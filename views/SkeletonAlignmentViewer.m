@@ -22,7 +22,7 @@ function varargout = SkeletonAlignmentViewer(varargin)
 
 % Edit the above text to modify the response to help SkeletonAlignmentViewer
 
-% Last Modified by GUIDE v2.5 06-Mar-2018 20:25:51
+% Last Modified by GUIDE v2.5 07-Mar-2018 18:08:06
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -42,6 +42,7 @@ gui_State = struct('gui_Name',       mfilename, ...
 % if isempty (cur_frame), return;  end
 % axis(Hds.axis_preview);
 % display_frame (Hds);
+
 
 opt_args = {'datadir', 'filename', 'outfile'};
 parse_opts = false;
@@ -161,32 +162,39 @@ if opts_ids
         mapObj = containers.Map(opts(1:2:end),opts(2:2:end),'UniformValues',false);
         keySet = mapObj.keys;
         setValues = mapObj.values;
-        depth = [];
-        images = [];
-        metadata = [];
-        times = [];
-        fpath = [];
+        
+        video_data = [];
+        datadir = [];
+        filename = [];
+        outfile = [];
+        %         images = [];
         for x = 1:length(keySet)
             ids = find(strcmp(keySet{x}, opt_args));
             if ids
                 switch keySet{x}
-                    case 'Depth'
-                        depth = setValues{x};
-                    case 'Images'
-                        images = setValues{x};
-                    case 'Metadata'
-                        metadata = setValues{x};
-                    case 'Times'
-                        times = setValues{x};
+                    case 'datadir'
+                        datadir = setValues{x};
+                    case 'filename'
+                        filename = setValues{x};
+                    case 'outfile'
+                        outfile = setValues{x};
                     otherwise
                         fprintf(1, 'SkeletonAlignmentViewer(): Unknown key %s', keySet{x});
                 end
             end
         end
-        video_data = Video(images, fpath);%, times, metadata, depth);
-        video_data.fpath = fpath;
-        video_data.current_index = 1;
-        Hds.video_data = video_data;
+        if ~isempty(filename) && ~isempty(datadir)
+            fpath = [datadir filename '.mat'];
+            load(fpath, 'image_record')
+            video_data = Video(image_record, fpath);% times, metadata, depth);
+            video_data.fpath = fpath;
+            
+            video_data.current_index = 1;
+            
+            Hds.video_data = video_data;
+
+        end
+        
         % Update Hds structure
         if video_data.display
             display_frame (Hds);
@@ -203,14 +211,16 @@ else
 end
 userhome = [utils.getuserhome() filesep];
 
-outdir = [fullfile(userhome, 'Dropbox', 'alignments'), filesep];
+outdir = [fullfile(userhome, 'Dropbox'), filesep];
+
+Hds.outcsv = fullfile(userhome, 'Dropbox', 'alignments.csv');
 
 Hds.outdir = outdir;
 
-set(Hds.tf_outdir, 'String', outdir)
+set(Hds.tf_outdir, 'String', Hds.outcsv)
 
 Hds.outdir = outdir;
-Hds.outbin = [outdir 'tmp.csv'];
+% Hds.outbin = [outdir 'tmp.csv'];
 
 guidata(hObject, Hds);
 
@@ -523,15 +533,15 @@ if ~strcmp(Hds.outdir(end), '/')
     Hds.outdir = [Hds.outdir '/'];
 end
 set(Hds.tf_outdir, 'String', Hds.outdir);
-outbin = strcat(Hds.outdir, fname, '.csv');
-Hds.outbin = outbin;
-Hds.outdir = [fileparts(outbin) filesep];
-set(Hds.tf_outdir, 'String', Hds.outdir)
+% outbin = strcat(Hds.outdir, fname, '.csv');
+% Hds.outbin = outbin;
+% Hds.outdir = [fileparts(outbin) filesep];
+% set(Hds.tf_outdir, 'String', Hds.outdir)
 
 
-if ~exist(Hds.outdir, 'dir')
-    mkdir(Hds.outdir);
-end
+% if ~exist(Hds.outdir, 'dir')
+%     mkdir(Hds.outdir);
+% end
 
 % if isempty (cur_frame), return;  end
 % axis(Hds.axis_preview);
@@ -699,8 +709,8 @@ elseif strcmp(eventdata.Key, 'escape')
 end
 
 % --- Executes during object creation, after setting all properties.
-function edit5_CreateFcn(hObject, eventdata, Hds)
-% hObject    handle to edit5 (see GCBO)
+function tf_loaddir_CreateFcn(hObject, eventdata, Hds)
+% hObject    handle to tf_loaddir (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % Hds    empty - Hds not created until after all CreateFcns called
 
@@ -711,12 +721,38 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
+function set_sample_menu(hObject, Hds)
+
+d1 = dir([Hds.loaddir 'action_data/*.mat']);
+samps = strrep({d1.name}, '.mat','');
+set(Hds.menu_samples, 'String', samps)
+guidata(hObject, Hds);              % Update Hds structure
+
 % --- Executes on button press in b_loaddir.
 function b_loaddir_Callback(hObject, eventdata, Hds)
 % hObject    handle to b_loaddir (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % Hds    structure with Hds and user data (see GUIDATA)
+indir = get(Hds.tf_loaddir,'String');
 
+if isdir(indir)
+    path = uigetdir(indir,'Directory Selector');
+else
+    path = uigetdir(utils.getuserhome(),'Directory Selector');
+end
+if  path == 0
+    disp('Cancel Selected')
+    return;
+else
+    path = strcat(path, '/');
+end
+Hds.loaddir = path;
+set(Hds.tf_loaddir, 'String', path);
+
+
+guidata(hObject, Hds);              % Update Hds structure
+set_sample_menu(hObject, Hds);
+write_out(Hds);
 % --- Executes during object creation, after setting all properties.
 function tf_outdir_CreateFcn(hObject, eventdata, Hds)
 % hObject    handle to tf_outdir (see GCBO)
@@ -804,19 +840,19 @@ if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColo
 end
 
 
-% --- Executes on selection change in popupmenu27.
-function popupmenu27_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu27 (see GCBO)
+% --- Executes on selection change in menu_samples.
+function menu_samples_Callback(hObject, eventdata, handles)
+% hObject    handle to menu_samples (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu27 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu27
+% Hints: contents = cellstr(get(hObject,'String')) returns menu_samples contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from menu_samples
 
 
 % --- Executes during object creation, after setting all properties.
-function popupmenu27_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popupmenu27 (see GCBO)
+function menu_samples_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to menu_samples (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -834,3 +870,39 @@ function cb_donext_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of cb_donext
+
+
+
+function tf_loaddir_Callback(hObject, eventdata, handles)
+% hObject    handle to tf_loaddir (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of tf_loaddir as text
+%        str2double(get(hObject,'String')) returns contents of tf_loaddir as a double
+
+
+% --- If Enable == 'on', executes on mouse press in 5 pixel border.
+% --- Otherwise, executes on mouse press in 5 pixel border or over b_loaddir.
+function b_loaddir_ButtonDownFcn(hObject, eventdata, handles)
+% hObject    handle to b_loaddir (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+function write_out(Hds)
+% Write CSV file and backup file
+
+if exist(Hds.outcsv, 'file')
+    f_csvtemp = strreo(Hds.outcsv, '.csv', '-backup.csv');
+    fprintf(1, 'Creating Backup before updating: %s', f_csvtemp)
+    copyfile(Hds.csvout, f_csvtemp);
+end
+
+fprintf(1, 'Writing Out: %s', Hds.outcsv)
+
+f_csvtemp2 = strreo(Hds.outcsv, '.csv', '-backup-current.csv');
+fprintf(1, 'Creating Backup post update: %s', f_csvtemp2)
+copyfile(Hds.csvout, f_csvtemp2);
+
+
