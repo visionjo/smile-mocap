@@ -43,7 +43,7 @@ gui_State = struct('gui_Name',       mfilename, ...
 % axis(Hds.axis_preview);
 % display_frame (Hds);
 
-opt_args = {'Depth', 'Images', 'Metadata', 'Times', 'fpath'};
+opt_args = {'datadir', 'filename', 'outfile'};
 parse_opts = false;
 if nargin
     
@@ -57,51 +57,40 @@ if nargin
     
     
     
-    if parse_opts || (length(varargin{1}) > 1 && ~strcmp(varargin{1}, 'lb_actions_CreateFcn'))
+    if parse_opts || (length(varargin{1}) > 1 && any(~strcmp(varargin{1}, 'lb_actions_CreateFcn')))
         mapObj = containers.Map(varargin{1}(1:2:end),varargin{1}(2:2:end),'UniformValues',false);
         keySet = mapObj.keys;
         setValues = mapObj.values;
-        depth = [];
-        images = [];
-        metadata = [];
-        times = [];
-        fpath = [];
+        video_data = [];
+        datadir = [];
+        filename = [];
+        outfile = [];
+        %         images = [];
         for x = 1:length(keySet)
             ids = find(strcmp(keySet{x}, opt_args));
             if ids
                 switch keySet{x}
-                    case 'Depth'
-                        depth = setValues{x};
-                    case 'Images'
-                        images = setValues{x};
-                    case 'Metadata'
-                        metadata = setValues{x};
-                    case 'Times'
-                        times = setValues{x};
+                    case 'datadir'
+                        datadir = setValues{x};
+                    case 'filename'
+                        filename = setValues{x};
+                    case 'outfile'
+                        outfile = setValues{x};
                     otherwise
                         fprintf(1, 'SkeletonAlignmentViewer(): Unknown key %s', keySet{x});
                 end
             end
         end
-        video_data = Video(images, fpath);% times, metadata, depth);
-        video_data.fpath = fpath;
-        Hds.Palette = ColorPalette(video_data.nframes);
-        Hds.video_data = video_data;
+        if ~isempty(filename) && ~isempty(datadir)
+            fpath = [datadir filename '.mat'];
+            load(fpath, 'image_record')
+            video_data = Video(image_record, fpath);% times, metadata, depth);
+        end
+        %         Hds.datadir = datadir;
+        %         Hds.filename = filename;
+        %         Hds.outfile = outfile;
+        %         Hds.video_data = video_data;
     end
-    
-    %             this.color_palette = ones(150, 10000, 3)*250;
-    %
-    %             this.colors = cell(1, 10);
-    %             this.colors{1} = [1 1 0];
-    %             this.colors{2} = [1 0 1];
-    %             this.colors{3} = [0 1 1];
-    %             this.colors{4} = [1 0 0];
-    %             this.colors{5} = [0 1 0];
-    %             this.colors{6} = [0 0 1];
-    %             this.colors{7} = [1 1 1];
-    %             this.colors{8} = [0.5 0.5 0.5];
-    %             this.colors{9} = [0.7 .2 0.2];
-    %             this.colors{10} = [0.1 .7 .5];
     
 end
 if nargout
@@ -758,7 +747,7 @@ outdir = get(Hds.tf_outdir,'String');
 if isdir(outdir)
     path = uigetdir(outdir,'Directory Selector');
 else
-    path = uigetdir(getuserhome(),'Directory Selector');
+    path = uigetdir(utils.getuserhome(),'Directory Selector');
 end
 if  path == 0
     disp('Cancel Selected')
