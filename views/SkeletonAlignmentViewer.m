@@ -889,16 +889,31 @@ function b_loaddir_ButtonDownFcn(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+function initialize_output(Hds)
+str_samples = Hds.menu_samples.String;
+nsamples = length(sample_strings);
+
+vicon_frame = zeros(nsamples, 1);
+kinect_frame = zeros(nsamples, 1);
+T = table(str_samples, vicon_frame, kinect_frame);
+
+fprintf(1, 'Initializing Table: %s', Hds.outcsv)
+writetable(T, Hds.outcsv, 'Delimiter', ',')
 
 function write_out(Hds)
 % Write CSV file and backup file
 
-if exist(Hds.outcsv, 'file')
-    f_csvtemp = strreo(Hds.outcsv, '.csv', '-backup.csv');
-    fprintf(1, 'Creating Backup before updating: %s', f_csvtemp)
-    copyfile(Hds.csvout, f_csvtemp);
+if ~exist(Hds.outcsv, 'file')
+    fprintf(2, 'Alignmnet File not found: %s', Hds.outcsv)
+    initialize_output(Hds);
+    return;
 end
 
+f_csvtemp = strreo(Hds.outcsv, '.csv', '-backup.csv');
+fprintf(1, 'Creating Backup before updating: %s', f_csvtemp)
+copyfile(Hds.csvout, f_csvtemp);
+
+csvcontents = readtable(Hds.csvout, 'Delimiter', ',');
 fprintf(1, 'Writing Out: %s', Hds.outcsv)
 
 f_csvtemp2 = strreo(Hds.outcsv, '.csv', '-backup-current.csv');
