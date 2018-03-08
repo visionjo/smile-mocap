@@ -50,6 +50,8 @@ classdef ViconSkeleton
         part_strings;
         markers;        % cell array of names and indices TODO
         nframes;
+        
+        current_index;
     end
     
     methods
@@ -65,6 +67,7 @@ classdef ViconSkeleton
             
             obj.nparts = length(uparts);
             obj.nframes = size(obj.RTOE,1);
+            obj.current_index = 1;
             for x = 1:obj.nparts
                 part = uparts{x};
                 ids = strcmp(part, parts);
@@ -73,6 +76,7 @@ classdef ViconSkeleton
             end
             obj = obj.set_nframes();
             obj = obj.set_nparts();
+
             %             cellfun(@(x) x(1:end-2), T.Properties.VariableNames,'uni',false);
         end
         function cl_out = findAttrValue(obj,attrName,varargin)
