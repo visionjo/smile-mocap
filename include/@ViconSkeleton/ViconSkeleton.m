@@ -205,7 +205,7 @@ classdef ViconSkeleton
             end
         end
         
-        function fhandle = scatter_plot2(obj, frame_step,rgb_data,cut_sec)
+        function fhandle = scatter_plot2(obj, Hds)
             %  plots skeleton as scatter plot in euclean space
             % 'frame_step' is optional argument allowing for the number of
             % frames skipped between axis views to be altered (default 100)
@@ -218,70 +218,71 @@ classdef ViconSkeleton
             colors(28:38)='b';
             
             %based on rgb to find vicon frame
-            rgb_frames=size(rgb_data.image_record,2);
-            vicon_start = 1;
-            start_rgb_frame = 1;
+            %             rgb_frames=size(rgb_data.image_record,2);
+            %             vicon_start = 1;
+            %             start_rgb_frame = 1;
             %if cut_sec > 0, means cut several start frames of rgb;
             %if cut_sec < 0, means cut several start frames from vicon;
-            if cut_sec > 0
-                start_rgb_frame = round(cut_sec * 24);
-            elseif cut_sec < 0
-                vicon_start = abs(round(cut_sec * 100));
-            end
+            %             if cut_sec > 0
+            %                 start_rgb_frame = round(cut_sec * 24);
+            %             elseif cut_sec < 0
+            %                 vicon_start = abs(round(cut_sec * 100));
+            %             end
             
-            start_rgb_time = rgb_data.time_record{start_rgb_frame};
-            vicon_x = vicon_start;
+            %             start_rgb_time = rgb_data.time_record{start_rgb_frame};
+            %             vicon_x = vicon_start;
             
-            if nargin < 2
-                frame_step = 100;
-            end
+            %             if nargin < 2
+            %                 frame_step = 100;
+            %             end
             parts = obj.get_parts_str();
-            fhandle = figure(1);
+            axis(Hds.axis_vicon);
+            %             fhandle = figure(1);
             
-            set(fhandle, 'Position', [0 0 1000 500])
+            %             set(fhandle, 'Position', [0 0 1000 500])
             
-            for x = start_rgb_frame:frame_step:rgb_frames
-                %Calculate time cost from first rgb frame to now
-                time_pass = rgb_data.time_record{x}-start_rgb_time;
-                time_cost = time_pass(5)*60+time_pass(6);
-                vicon_change = round(time_cost*100);
-                %If either rgb or vicon frame ran out, break
-                if vicon_start+vicon_change > obj.nframes
-                    fprintf("Vicon End!\n");
-                    fprintf("RGB frame: %d\nVicon frame: %d\n",x-1,vicon_x);
-                    break;
-                end
-                fprintf('%d + %d =\n',1,vicon_change);
-                %change add to 1st frame, to avoid error caused by 'round'
-                vicon_x = vicon_start+vicon_change;
-                fprintf('Vicon: %d <====> RGB: %d\n',vicon_x,x);
+            %             for x = start_rgb_frame:frame_step:rgb_frames
+            %Calculate time cost from first rgb frame to now
+            %                 time_pass = rgb_data.time_record{x}-start_rgb_time;
+            %                 time_cost = time_pass(5)*60+time_pass(6);
+            %                 vicon_change = round(time_cost*100);
+            %                 %If either rgb or vicon frame ran out, break
+            %                 if vicon_start+vicon_change > obj.nframes
+            %                     fprintf("Vicon End!\n");
+            %                     fprintf("RGB frame: %d\nVicon frame: %d\n",x-1,vicon_x);
+            %                     break;
+            %                 end
+            %             fprintf('%d + %d =\n',1,vicon_change);
+            %change add to 1st frame, to avoid error caused by 'round'
+            %             vicon_x = vicon_start+vicon_change;
+            %             fprintf('Vicon: %d <====> RGB: %d\n',vicon_x,x);
+            
+            % for each frame (i.e., 100 fps captured by vicon)
+            %                 subplot(1,2,1);
+            hold on;
+            grid on;
+            %                 axis([-1000,1500,-500,1500,0,2000]);
+            
+            for r = 1:obj.nparts
+                % for each marker
+                %fprintf(1, 'adding part %s to scatter plot\n', parts{r});
                 
-                % for each frame (i.e., 100 fps captured by vicon)
-                subplot(1,2,1);
-                hold on;
-                grid on;
-                axis([-1000,1500,-500,1500,0,2000]);
-                
-                for r = 1:obj.nparts
-                    % for each marker
-                    %fprintf(1, 'adding part %s to scatter plot\n', parts{r});
-                    
-                    coords = obj.(parts{r})(vicon_x,:);
-                    scatter3(coords(1), coords(2), coords(3),char(colors(r)),'filled');
-                end
-                view(135,30)
-                hold off;
-                
-                %show rgb frame in subplot 2
-                subplot(1,2,2);
-                imshow(rgb_data.image_record{x});
-                
-                pause(0.001)
-                %                 pause
-                clf(fhandle)
+                coords = obj.(parts{r})(1,:);
+                scatter3(coords(1), coords(2), coords(3),char(colors(r)),'filled');
             end
-            fprintf("RGB End!\n");
-            fprintf("RGB frame: %d\nVicon frame: %d\n",rgb_frames,vicon_x);
+            view(135,30)
+            hold off;
+            
+            %                 %show rgb frame in subplot 2
+            %                 subplot(1,2,2);
+            %                 imshow(rgb_data.image_record{x});
+            %
+            %                 pause(0.001)
+            %                 %                 pause
+            %                 clf(fhandle)
+            %             end
+            %             fprintf("RGB End!\n");
+            %             fprintf("RGB frame: %d\nVicon frame: %d\n",rgb_frames,vicon_x);
         end
         
     end
