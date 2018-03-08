@@ -22,7 +22,7 @@ function varargout = SkeletonAlignmentViewer(varargin)
 
 % Edit the above text to modify the response to help SkeletonAlignmentViewer
 
-% Last Modified by GUIDE v2.5 07-Mar-2018 18:08:06
+% Last Modified by GUIDE v2.5 07-Mar-2018 18:26:40
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -366,9 +366,9 @@ else
 end
 
 switch culprit
-    
+    % determine component that triggered event
     case 'new'
-        %         Start a new corpus (TBD, likely aim to allow corpus merging)
+        % Start a new corpus (TBD, likely aim to allow corpus merging)
         fprintf (1, '\nComing Soon!!\n');
         
     case 'load'
@@ -439,18 +439,6 @@ new_video( hObject, Hds, dirname );
 
 
 
-% --- Executes during object creation, after setting all properties.
-function popupmenu26_CreateFcn(hObject, eventdata, Hds)
-% hObject    handle to popupmenu26 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% Hds    empty - Hds not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
 
 % --- Executes on slider movement.
 function slidebar_Callback(hObject, eventdata, Hds)
@@ -475,31 +463,6 @@ set_buttons(Hds);
 set_display (Hds);
 guidata(hObject, Hds);              % Update Hds structure
 
-
-
-
-% --- Executes during object creation, after setting all properties.
-function slidebar_CreateFcn(hObject, eventdata, Hds)
-% hObject    handle to slidebar (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% Hds    empty - Hds not created until after all CreateFcns called
-
-% Hint: slider controls usually have a light gray background.
-if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor',[.9 .9 .9]);
-end
-
-% --- Executes during object creation, after setting all properties.
-function lb_actions_CreateFcn(hObject, eventdata, Hds)
-% hObject    handle to lb_actions (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% Hds    empty - Hds not created until after all CreateFcns called
-
-% Hint: listbox controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
 
 
 % --------------------------------------------------------------------
@@ -708,19 +671,6 @@ elseif strcmp(eventdata.Key, 'escape')
     
 end
 
-% --- Executes during object creation, after setting all properties.
-function tf_loaddir_CreateFcn(hObject, eventdata, Hds)
-% hObject    handle to tf_loaddir (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% Hds    empty - Hds not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
 function set_sample_menu(hObject, Hds)
 
 d1 = dir([Hds.loaddir 'action_data/*.mat']);
@@ -752,26 +702,7 @@ set(Hds.tf_loaddir, 'String', path);
 
 guidata(hObject, Hds);              % Update Hds structure
 set_sample_menu(hObject, Hds);
-write_out(Hds);
-% --- Executes during object creation, after setting all properties.
-function tf_outdir_CreateFcn(hObject, eventdata, Hds)
-% hObject    handle to tf_outdir (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% Hds    empty - Hds not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% --- Executes on button press in pushbutton42.
-function pushbutton42_Callback(hObject, eventdata, Hds)
-% hObject    handle to pushbutton42 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% Hds    structure with Hds and user data (see GUIDATA)
-
+initialize_output(Hds);
 
 % --- Executes on button press in b_select.
 function b_select_Callback(hObject, eventdata, Hds)
@@ -796,27 +727,6 @@ set(Hds.tf_outdir, 'String', path);
 guidata(hObject, Hds);              % Update Hds structure
 
 
-% --- Executes on button press in rb_subjects.
-function toggle_action_types(hObject, eventdata, Hds) %#ok<DEFNU>
-% hObject    handle to rb_subjects (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of rb_subjects
-if strcmp(eventdata.Source.String, 'Subjects+Objects')
-    actions = {'Answering phone', 'Checking watch', 'Standing up', ...
-        'Sitting down', 'Grabbing bag', 'Throwing ball' 'Drinking',...
-        'Wearing shoes', 'Reading book', 'Moving table'};
-    
-else
-    % assume Subject
-    actions = {'Walking', 'Boxing', 'Hand-waving', 'Hand clapping', 'Jumping', ...
-        'Bending', 'Turning around', 'Kicking', 'Hand raising',...
-        'Falling down'};
-end
-set(Hds.lb_actions, 'String', actions);
-guidata(hObject, Hds);              % Update Hds structure
-
 
 % --- Executes on slider movement.
 function slider3_Callback(hObject, eventdata, handles)
@@ -828,20 +738,10 @@ function slider3_Callback(hObject, eventdata, handles)
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 
 
-% --- Executes during object creation, after setting all properties.
-function slider3_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to slider3 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: slider controls usually have a light gray background.
-if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor',[.9 .9 .9]);
-end
-
+function load_videos(Hds)
 
 % --- Executes on selection change in menu_samples.
-function menu_samples_Callback(hObject, eventdata, handles)
+function menu_samples_Callback(hObject, eventdata, Hds)
 % hObject    handle to menu_samples (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
@@ -849,18 +749,14 @@ function menu_samples_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns menu_samples contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from menu_samples
 
+ids = Hds.menu_samples.Value;
+samps = Hds.menu_samples.String;
 
-% --- Executes during object creation, after setting all properties.
-function menu_samples_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to menu_samples (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
+if (length(samps) == 7) && strcmp(samps, 'Samples')
+    return;
 end
+keyboard
+
 
 
 % --- Executes on button press in cb_donext.
@@ -890,6 +786,12 @@ function b_loaddir_ButtonDownFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 function initialize_output(Hds)
+
+if exist(Hds.outcsv, 'file')
+    fprintf(1, 'Alignmnet File Exists: %s', Hds.outcsv)
+    return;
+end
+
 str_samples = Hds.menu_samples.String;
 nsamples = length(sample_strings);
 
@@ -913,7 +815,7 @@ f_csvtemp = strreo(Hds.outcsv, '.csv', '-backup.csv');
 fprintf(1, 'Creating Backup before updating: %s', f_csvtemp)
 copyfile(Hds.csvout, f_csvtemp);
 
-csvcontents = readtable(Hds.csvout, 'Delimiter', ',');
+csvcontents = readtable(Hds.outcsv, 'Delimiter', ',');
 fprintf(1, 'Writing Out: %s', Hds.outcsv)
 
 f_csvtemp2 = strreo(Hds.outcsv, '.csv', '-backup-current.csv');
@@ -921,3 +823,96 @@ fprintf(1, 'Creating Backup post update: %s', f_csvtemp2)
 copyfile(Hds.csvout, f_csvtemp2);
 
 
+% --- Executes on button press in b_donext.
+function b_donext_Callback(hObject, eventdata, handles)
+% hObject    handle to b_donext (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in b_tag.
+function b_tag_Callback(hObject, eventdata, Hds)
+% hObject    handle to b_tag (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+
+
+
+%% Create Function
+% --- Each Executes during object creation, after setting all properties.
+function tf_outdir_CreateFcn(hObject, eventdata, Hds)
+% hObject    handle to tf_outdir (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% Hds    empty - Hds not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+function tf_loaddir_CreateFcn(hObject, eventdata, Hds)
+% hObject    handle to tf_loaddir (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% Hds    empty - Hds not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+function popupmenu26_CreateFcn(hObject, eventdata, Hds)
+% hObject    handle to popupmenu26 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% Hds    empty - Hds not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+function slider3_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to slider3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+function menu_samples_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to menu_samples (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+function slidebar_CreateFcn(hObject, eventdata, Hds)
+% hObject    handle to slidebar (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% Hds    empty - Hds not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+function lb_actions_CreateFcn(hObject, eventdata, Hds)
+% hObject    handle to lb_actions (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% Hds    empty - Hds not created until after all CreateFcns called
+
+% Hint: listbox controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
