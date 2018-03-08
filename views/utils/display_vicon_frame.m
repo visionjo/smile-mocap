@@ -1,14 +1,4 @@
-function Hds = load_vicon(hObject, Hds, current_sample)
-%LOAD_VICON reads and displays vicon skeleton data in axis on right.
-
-vicondir = [Hds.loaddir filesep 'vicon_data' filesep 'skeleton' filesep];
-fpath = [vicondir current_sample '.csv'];
-
-if ~exist(fpath, 'file'), return; 	end
-
-fprintf(1, 'loading vicon (skeleton) data: %s\n', fpath);
-Hds.v_skeleton = ViconSkeleton(fpath);
-
+function display_vicon_frame(Hds)
 % Hds.v_skeleton.scatter_plot2(Hds);%,cut_sec);
 colors=[];
 colors(1:3)='k';
@@ -33,7 +23,3 @@ for r = 1:Hds.v_skeleton.nparts
 end
 view(135,30)
 hold off;
-
-guidata(hObject, Hds);              % Update Hds structure
-end
-

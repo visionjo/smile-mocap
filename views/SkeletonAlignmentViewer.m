@@ -22,7 +22,7 @@ function varargout = SkeletonAlignmentViewer(varargin)
 
 % Edit the above text to modify the response to help SkeletonAlignmentViewer
 
-% Last Modified by GUIDE v2.5 07-Mar-2018 22:45:58
+% Last Modified by GUIDE v2.5 07-Mar-2018 22:52:49
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -146,6 +146,7 @@ Hds.output = hObject;
 
 opt_args = {'datadir', 'filename', 'outfile'};
 opts_ids = length(varargin);
+Hds.v_skeleton = [];
 if opts_ids
     
     if ischar(varargin{1}) &&  opts_ids == 1
@@ -438,6 +439,31 @@ dirname = uigetdir('~','Select Data Directory');
 new_video( hObject, Hds, dirname );
 
 
+% --- Executes on slider movement.
+function sl_vicon_Callback(hObject, eventdata, Hds)
+% hObject    handle to sl_vicon (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+
+if isempty(Hds.v_skeleton), return; end
+pos = hObject.Value;
+frame_id = round(Hds.video_data.nframes*pos);
+if frame_id == 0
+    Hds.v_skeleton.current_index = 1;
+else
+    
+    Hds.v_skeleton.current_index = round(Hds.video_data.nframes*pos);
+end
+
+display_vicon_frame(Hds);
+% set_buttons(Hds);
+% set_display (Hds);
+guidata(hObject, Hds);              % Update Hds structure
+
+
 
 
 % --- Executes on slider movement.
@@ -728,14 +754,7 @@ guidata(hObject, Hds);              % Update Hds structure
 
 
 
-% --- Executes on slider movement.
-function slider3_Callback(hObject, eventdata, handles)
-% hObject    handle to slider3 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'Value') returns position of slider
-%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 
 
 % --- Executes on selection change in menu_samples.
@@ -810,8 +829,8 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-function slider3_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to slider3 (see GCBO)
+function sl_vicon_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to sl_vicon (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
