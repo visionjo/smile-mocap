@@ -5,6 +5,10 @@ function Hds = display_data(hObject, Hds, current_sample)
 %the Vicon system.
 
 
-Hds = load_video(hObject, Hds, current_sample);
+Hds = load_kinect(hObject, Hds, current_sample);
+display_frame(Hds)
+Hds = load_vicon(hObject, Hds, current_sample);
+
+
 end
 

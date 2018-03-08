@@ -22,7 +22,7 @@ function varargout = SkeletonAlignmentViewer(varargin)
 
 % Edit the above text to modify the response to help SkeletonAlignmentViewer
 
-% Last Modified by GUIDE v2.5 07-Mar-2018 18:26:40
+% Last Modified by GUIDE v2.5 07-Mar-2018 22:22:28
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -144,7 +144,7 @@ axes(Hds.axis_preview);
 Hds.output = hObject;
 % imshow('logo-smile.png');
 
-opt_args = {'Depth', 'Images', 'Metadata', 'Times', 'fpath'};
+opt_args = {'datadir', 'filename', 'outfile'};
 opts_ids = length(varargin);
 if opts_ids
     
@@ -192,7 +192,7 @@ if opts_ids
             video_data.current_index = 1;
             
             Hds.video_data = video_data;
-
+            
         end
         
         % Update Hds structure
@@ -201,13 +201,13 @@ if opts_ids
             set_buttons(Hds);
             set_display (Hds)
         end
-        Hds.Palette  = ColorPalette(video_data.nframes);
+        %         Hds.Palette  = ColorPalette(video_data.nframes);
     end
 else
     
     Hds.video_data = {};
     
-    Hds.Palette  = ColorPalette(10000);
+    %     Hds.Palette  = ColorPalette(10000);
 end
 userhome = [utils.getuserhome() filesep];
 
@@ -241,14 +241,14 @@ function pb_load_Callback(hObject, ~, Hds)       %#ok<DEFNU>
 % open M file; preview set to index 1
 
 Hds = load_video(hObject, Hds);
-set_display (Hds); 
+set_display (Hds);
 set_buttons (Hds);
 
-if ~isempty(Hds.video_data)
-    Hds.Palette  = ColorPalette(Hds.video_data.nframes);
-else
-    Hds.Palette  = ColorPalette(10000);
-end
+% if ~isempty(Hds.video_data)
+%     Hds.Palette  = ColorPalette(Hds.video_data.nframes);
+% else
+%     Hds.Palette  = ColorPalette(10000);
+% end
 
 % if isempty (cur_frame), return;  end
 % axis(Hds.axis_preview);
@@ -459,7 +459,7 @@ else
 end
 
 display_frame(Hds);
-set_buttons(Hds);
+% set_buttons(Hds);
 set_display (Hds);
 guidata(hObject, Hds);              % Update Hds structure
 
@@ -472,14 +472,14 @@ function icon_load_ClickedCallback(hObject, eventdata, Hds)
 % Hds    structure with Hds and user data (see GUIDATA)
 Hds = load_video(hObject, Hds);
 
-if ~isempty(Hds.video_data)
-    Hds.Palette  = ColorPalette(Hds.video_data.nframes);
-else
-    Hds.Palette  = ColorPalette(10000);
-end
+% if ~isempty(Hds.video_data)
+%     Hds.Palette  = ColorPalette(Hds.video_data.nframes);
+% else
+%     Hds.Palette  = ColorPalette(10000);
+% end
 
 axes(Hds.axis_color);
-imshow(Hds.Palette.panel)
+% imshow(Hds.Palette.panel)
 axes(Hds.axis_preview)
 
 set(Hds.lb_actions,'Value', 1);
@@ -537,7 +537,7 @@ end
 cLabel.start_frame = Hds.video_data.current_index;
 cLabel.end_frame = Hds.video_data.current_index + 1;
 
-Hds.Palette = Hds.Palette.add(ids_selected, cLabel);
+% Hds.Palette = Hds.Palette.add(ids_selected, cLabel);
 
 % Hds.Palette = Hds.Palette.add(ids_selected, );
 % Hds.video_data.color_palette(:,Hds.video_data.current_index,:) ...
@@ -563,7 +563,7 @@ ids_selected = get(Hds.lb_actions,'Value');
 Hds.video_data.Labels(end) = Hds.video_data.Labels(end).set_end(Hds.video_data.current_index);
 cLabel = Hds.video_data.Labels(end);
 
-Hds.Palette = Hds.Palette.add(ids_selected, cLabel);
+% Hds.Palette = Hds.Palette.add(ids_selected, cLabel);
 set(Hds.b_start, 'Enable','on');
 set(Hds.b_end, 'Enable','off');
 
@@ -581,7 +581,7 @@ cell2csv(Hds.outbin,contents);
 %     cell2csv(Hds.outbin,{cLabel.action_type, cLabel.start_frame, cLabel.end_frame});
 % end
 axes(Hds.axis_color);
-imshow(Hds.Palette.panel)
+% imshow(Hds.Palette.panel)
 axes(Hds.axis_preview)
 
 items = get(Hds.lb_actions,'String');
@@ -610,7 +610,7 @@ ids = Hds.lb_actions.Value;
 
 % Construct a questdlg with three options
 choice = questdlg(['Are you sure you want to remove "' actions{ids} '" label(s)?'], ...
-	'WARNING','Yes','No');
+    'WARNING','Yes','No');
 % Handle response
 
 if ~isempty(choice) && strcmp(choice, 'Yes')
@@ -644,7 +644,7 @@ while  eventdata.Source.Value
     
     % update GUI's axis with plot of next exemplar
     display_frame(Hds); % func call to display, i.e., plot
-    set_display(Hds);    
+    set_display(Hds);
     pause(.25)
 end
 guidata(hObject, Hds);
@@ -702,7 +702,7 @@ set(Hds.tf_loaddir, 'String', path);
 
 guidata(hObject, Hds);              % Update Hds structure
 set_sample_menu(hObject, Hds);
-initialize_output(Hds);
+initialize_output_file(Hds);
 
 % --- Executes on button press in b_select.
 function b_select_Callback(hObject, eventdata, Hds)
@@ -738,8 +738,6 @@ function slider3_Callback(hObject, eventdata, handles)
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 
 
-function load_videos(Hds)
-
 % --- Executes on selection change in menu_samples.
 function menu_samples_Callback(hObject, eventdata, Hds)
 % hObject    handle to menu_samples (see GCBO)
@@ -748,93 +746,30 @@ function menu_samples_Callback(hObject, eventdata, Hds)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns menu_samples contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from menu_samples
+% ids = Hds.menu_samples.Value;
+% samps = Hds.menu_samples.String;
+%
+% if (length(samps) == 7) && strcmp(samps, 'Samples')
+%     return;
+% end
 
-ids = Hds.menu_samples.Value;
-samps = Hds.menu_samples.String;
-
-if (length(samps) == 7) && strcmp(samps, 'Samples')
-    return;
-end
-keyboard
-
-
-
-% --- Executes on button press in cb_donext.
-function cb_donext_Callback(hObject, eventdata, handles)
-% hObject    handle to cb_donext (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of cb_donext
-
-
-
-function tf_loaddir_Callback(hObject, eventdata, handles)
-% hObject    handle to tf_loaddir (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of tf_loaddir as text
-%        str2double(get(hObject,'String')) returns contents of tf_loaddir as a double
-
-
-% --- If Enable == 'on', executes on mouse press in 5 pixel border.
-% --- Otherwise, executes on mouse press in 5 pixel border or over b_loaddir.
-function b_loaddir_ButtonDownFcn(hObject, eventdata, handles)
-% hObject    handle to b_loaddir (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-function initialize_output(Hds)
-
-if exist(Hds.outcsv, 'file')
-    fprintf(1, 'Alignmnet File Exists: %s', Hds.outcsv)
+[cell_tag, do_display] = get_current_sample_string(Hds);
+if ~do_display
     return;
 end
 
-str_samples = Hds.menu_samples.String;
-nsamples = length(sample_strings);
-
-vicon_frame = zeros(nsamples, 1);
-kinect_frame = zeros(nsamples, 1);
-T = table(str_samples, vicon_frame, kinect_frame);
-
-fprintf(1, 'Initializing Table: %s', Hds.outcsv)
-writetable(T, Hds.outcsv, 'Delimiter', ',')
-
-function write_out(Hds)
-% Write CSV file and backup file
-
-if ~exist(Hds.outcsv, 'file')
-    fprintf(2, 'Alignmnet File not found: %s', Hds.outcsv)
-    initialize_output(Hds);
-    return;
-end
-
-f_csvtemp = strreo(Hds.outcsv, '.csv', '-backup.csv');
-fprintf(1, 'Creating Backup before updating: %s', f_csvtemp)
-copyfile(Hds.csvout, f_csvtemp);
-
-csvcontents = readtable(Hds.outcsv, 'Delimiter', ',');
-fprintf(1, 'Writing Out: %s', Hds.outcsv)
-
-f_csvtemp2 = strreo(Hds.outcsv, '.csv', '-backup-current.csv');
-fprintf(1, 'Creating Backup post update: %s', f_csvtemp2)
-copyfile(Hds.csvout, f_csvtemp2);
-
-
-% --- Executes on button press in b_donext.
-function b_donext_Callback(hObject, eventdata, handles)
-% hObject    handle to b_donext (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
+Hds = display_data(hObject, Hds, cell_tag);
 
 % --- Executes on button press in b_tag.
-function b_tag_Callback(hObject, eventdata, Hds)
+function b_tag_Callback(hObject, ~, Hds)
 % hObject    handle to b_tag (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+[cell_tag, do_display] = get_current_sample_string(Hds);
+if ~do_display
+    return;
+end
 
 
 

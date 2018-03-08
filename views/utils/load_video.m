@@ -1,4 +1,4 @@
-function Hds = load_video(hObject, Hds)
+function Hds = load_kinect(hObject, Hds, current_sample)
 %LOAD_VIDEO reads and displays kinect data in axis left side of GUI.
 
 kinectdir = [Hds.loaddir filesep 'action_data' filesep];
