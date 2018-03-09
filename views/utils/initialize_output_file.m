@@ -8,16 +8,16 @@ function initialize_output_file(Hds)
 %   frame ID 0 does not exist by convention (Frame 1-N, where N is the
 %   number of frames captured by the device).
 if exist(Hds.outcsv, 'file')
-    fprintf(1, 'Alignmnet File Exists: %s', Hds.outcsv)
+    fprintf(1, '\nAlignmnet File Exists: %s\n', Hds.outcsv)
     return;
 end
 
 str_samples = Hds.menu_samples.String;
-nsamples = length(sample_strings);
+nsamples = length(str_samples);
 
 vicon_frame = zeros(nsamples, 1);
 kinect_frame = zeros(nsamples, 1);
 T = table(str_samples, vicon_frame, kinect_frame);
 
-fprintf(1, 'Initializing Table: %s', Hds.outcsv)
+fprintf(1, '\nInitializing Table: %s\n', Hds.outcsv)
 writetable(T, Hds.outcsv, 'Delimiter', ',')
