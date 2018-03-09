@@ -147,6 +147,7 @@ Hds.output = hObject;
 opt_args = {'datadir', 'filename', 'outfile'};
 opts_ids = length(varargin);
 Hds.v_skeleton = [];
+Hds.v_current_index = 1;
 if opts_ids
     
     if ischar(varargin{1}) &&  opts_ids == 1
@@ -210,6 +211,7 @@ else
     
     %     Hds.Palette  = ColorPalette(10000);
 end
+
 userhome = [utils.getuserhome() filesep];
 
 outdir = [fullfile(userhome, 'Dropbox'), filesep];
@@ -453,9 +455,14 @@ pos = hObject.Value;
 frame_id = round(Hds.video_data.nframes*pos);
 if frame_id == 0
     Hds.v_skeleton.current_index = 1;
+    Hds.v_current_index = 1;
+
 else
     
     Hds.v_skeleton.current_index = round(Hds.video_data.nframes*pos);
+        
+    Hds.v_current_index = round(Hds.video_data.nframes*pos);
+
 end
 
 display_vicon_frame(Hds);
@@ -702,6 +709,7 @@ function set_sample_menu(hObject, Hds)
 d1 = dir([Hds.loaddir 'action_data/*.mat']);
 samps = strrep({d1.name}, '.mat','');
 set(Hds.menu_samples, 'String', samps)
+
 guidata(hObject, Hds);              % Update Hds structure
 
 % --- Executes on button press in b_loaddir.
@@ -753,10 +761,6 @@ set(Hds.tf_outdir, 'String', path);
 guidata(hObject, Hds);              % Update Hds structure
 
 
-
-
-
-
 % --- Executes on selection change in menu_samples.
 function menu_samples_Callback(hObject, eventdata, Hds)
 % hObject    handle to menu_samples (see GCBO)
@@ -789,6 +793,7 @@ function b_tag_Callback(hObject, ~, Hds)
 if ~do_display
     return;
 end
+write_output(Hds);
 
 
 

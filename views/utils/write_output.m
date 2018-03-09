@@ -1,4 +1,4 @@
-function [outputArg1,outputArg2] = write_output(inputArg1,inputArg2)
+function write_output(Hds)
 %%WRITE_OUTPUT Simply updates the alignment file. Specifically, the function
 %reads in alignment file, rewrites its contents entirely, with exception of
 %newly added alignment data (i.e., annotations for current sample).
@@ -8,24 +8,37 @@ function [outputArg1,outputArg2] = write_output(inputArg1,inputArg2)
 
 if ~exist(Hds.outcsv, 'file')
     %% check if file exists, if not, initialize file and exit function
-    fprintf(2, 'Alignmnet File not found: %s', Hds.outcsv)
+    fprintf(2, '\nAlignmnet File not found: %s\n', Hds.outcsv)
     initialize_output_file(Hds);
-    return;
+    %     return;
 end
 
+
 %% create backup of existing file
-f_csvtemp = strreo(Hds.outcsv, '.csv', '-backup.csv');
-fprintf(1, 'Creating Backup before updating: %s', f_csvtemp)
-copyfile(Hds.csvout, f_csvtemp);
+f_csvtemp = strrep(Hds.outcsv, '.csv', '-backup.csv');
+fprintf(1, 'Creating Backup before updating: %s\n', f_csvtemp)
+copyfile(Hds.outcsv, f_csvtemp);
 
 %% read in current alignment file as type Table
 csvcontents = readtable(Hds.outcsv, 'Delimiter', ',');
 fprintf(1, 'Writing Out: %s', Hds.outcsv)
 
 %% TODO write added tags
+str_samples = Hds.menu_samples.String;
+ids = Hds.menu_samples.Value;
+str_sample = str_samples{ids};
+
+cids = find(strcmp(csvcontents.str_samples, str_sample));
+
+csvcontents.kinect_frame(cids) = Hds.v_current_index;
+csvcontents.vicon_frame(cids) = Hds.video_data.current_index;
+
+fprintf(1, 'Updating Table: %s\n', Hds.outcsv)
+writetable(csvcontents, Hds.outcsv, 'Delimiter', ',')
+
 
 
 %% copy file with updated information
-f_csvtemp2 = strreo(Hds.outcsv, '.csv', '-backup-current.csv');
-fprintf(1, 'Creating Backup post update: %s', f_csvtemp2)
-copyfile(Hds.csvout, f_csvtemp2);
+f_csvtemp2 = strrep(Hds.outcsv, '.csv', '-backup-current.csv');
+fprintf(1, 'Creating Backup post update: %s\n\n', f_csvtemp2)
+copyfile(Hds.outcsv, f_csvtemp2);
