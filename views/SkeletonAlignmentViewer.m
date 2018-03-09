@@ -452,16 +452,16 @@ function sl_vicon_Callback(hObject, eventdata, Hds)
 
 if isempty(Hds.v_skeleton), return; end
 pos = hObject.Value;
-frame_id = round(Hds.video_data.nframes*pos);
+frame_id = round(Hds.v_skeleton.nframes*pos);
 if frame_id == 0
     Hds.v_skeleton.current_index = 1;
     Hds.v_current_index = 1;
 
 else
     
-    Hds.v_skeleton.current_index = round(Hds.video_data.nframes*pos);
+    Hds.v_skeleton.current_index = round(Hds.v_skeleton.nframes*pos);
         
-    Hds.v_current_index = round(Hds.video_data.nframes*pos);
+    Hds.v_current_index = round(Hds.v_skeleton.nframes*pos);
 
 end
 
