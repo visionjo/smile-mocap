@@ -50,10 +50,22 @@ classdef ViconSkeleton
         part_strings;
         markers;        % cell array of names and indices TODO
         nframes;
-        
+        colors;
+
         current_index;
     end
-    
+    methods(Static)
+        function colors = get_colors()
+            % simple method to set color member
+            colors=[];
+            colors(1:3)='k';
+            colors(4:9)='y';
+            colors(10:16)='r';
+            colors(17:23)='g';
+            colors(24:27)='y';
+            colors(28:38)='b';
+        end
+    end
     methods
         function obj = ViconSkeleton(fpath)
             %VICONSKELETON Construct an instance of this class
@@ -74,11 +86,12 @@ classdef ViconSkeleton
                 coords = cell2mat(cell_data(:,ids));
                 obj.(part) = coords;
             end
+            obj.colors = ViconSkeleton.get_colors();
+
             obj = obj.set_nframes();
             obj = obj.set_nparts();
-
-            %             cellfun(@(x) x(1:end-2), T.Properties.VariableNames,'uni',false);
         end
+        
         function cl_out = findAttrValue(obj,attrName,varargin)
             if ischar(obj)
                 mc = meta.class.fromName(obj);
@@ -102,6 +115,7 @@ classdef ViconSkeleton
             end
             cl_out = cl_array(1:ii);
         end
+        
         function print(obj, frame_id)
             if nargin < 2, frame_id = 1;    end
             fields = fieldnames(obj);
@@ -210,35 +224,6 @@ classdef ViconSkeleton
         end
         
         function fhandle = scatter_plot2(obj, Hds)
-            %  plots skeleton as scatter plot in euclean space
-            % 'frame_step' is optional argument allowing for the number of
-            % frames skipped between axis views to be altered (default 100)
-            colors=[];
-            colors(1:3)='k';
-            colors(4:9)='y';
-            colors(10:16)='r';
-            colors(17:23)='g';
-            colors(24:27)='y';
-            colors(28:38)='b';
-            
-            %based on rgb to find vicon frame
-            %             rgb_frames=size(rgb_data.image_record,2);
-            %             vicon_start = 1;
-            %             start_rgb_frame = 1;
-            %if cut_sec > 0, means cut several start frames of rgb;
-            %if cut_sec < 0, means cut several start frames from vicon;
-            %             if cut_sec > 0
-            %                 start_rgb_frame = round(cut_sec * 24);
-            %             elseif cut_sec < 0
-            %                 vicon_start = abs(round(cut_sec * 100));
-            %             end
-            
-            %             start_rgb_time = rgb_data.time_record{start_rgb_frame};
-            %             vicon_x = vicon_start;
-            
-            %             if nargin < 2
-            %                 frame_step = 100;
-            %             end
             parts = obj.get_parts_str();
             axis(Hds.axis_vicon);
             %             fhandle = figure(1);
@@ -272,7 +257,7 @@ classdef ViconSkeleton
                 %fprintf(1, 'adding part %s to scatter plot\n', parts{r});
                 
                 coords = obj.(parts{r})(1,:);
-                scatter3(coords(1), coords(2), coords(3),char(colors(r)),'filled');
+                scatter3(coords(1), coords(2), coords(3),char(obj.colors(r)),'filled');
             end
             view(135,30)
             hold off;
@@ -289,6 +274,23 @@ classdef ViconSkeleton
             %             fprintf("RGB frame: %d\nVicon frame: %d\n",rgb_frames,vicon_x);
         end
         
+        function display(obj)
+            
+
+            hold on;
+            grid on;
+            axis([-1000,1500,-500,1500,0,2000]);
+            parts = obj.get_parts_str();
+            for r = 1:obj.nparts
+                % for each marker
+                coords = obj.(parts{r})(obj.current_index,:);
+                scatter3(coords(1), coords(2), coords(3),char(...
+                    obj.colors(r)),'filled');
+            end
+            view(135,30)
+            hold off;
+
+        end
     end
 end
 
