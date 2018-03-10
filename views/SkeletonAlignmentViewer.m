@@ -22,7 +22,7 @@ function varargout = SkeletonAlignmentViewer(varargin)
 
 % Edit the above text to modify the response to help SkeletonAlignmentViewer
 
-% Last Modified by GUIDE v2.5 09-Mar-2018 20:26:46
+% Last Modified by GUIDE v2.5 09-Mar-2018 20:44:55
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -885,6 +885,8 @@ function b_offset_Callback(hObject, eventdata, Hds)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 %based on rgb to find vicon frame
+
+if isempty(Hds.video_data), return; end
 colors=[];
 colors(1:3)='k';
 colors(4:9)='y';
@@ -923,6 +925,12 @@ parts = Hds.v_skeleton.get_parts_str();
 
 for x = start_rgb_frame:frame_step:rgb_frames
     
+    if Hds.cb_kill.Value == 0
+        break;
+    end
+    if Hds.b_offset.Value == 0
+        return;
+    end
     %Calculate time cost from first rgb frame to now
     time_pass = Hds.kinect_tstamp{x}-start_rgb_time;
     time_cost = time_pass(5)*60+time_pass(6);
@@ -992,3 +1000,12 @@ function tf_stepsize_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in cb_kill.
+function cb_kill_Callback(hObject, eventdata, handles)
+% hObject    handle to cb_kill (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of cb_kill
