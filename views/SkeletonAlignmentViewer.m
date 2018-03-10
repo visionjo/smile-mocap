@@ -22,7 +22,7 @@ function varargout = SkeletonAlignmentViewer(varargin)
 
 % Edit the above text to modify the response to help SkeletonAlignmentViewer
 
-% Last Modified by GUIDE v2.5 07-Mar-2018 22:52:49
+% Last Modified by GUIDE v2.5 09-Mar-2018 19:11:13
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -147,6 +147,7 @@ Hds.output = hObject;
 opt_args = {'datadir', 'filename', 'outfile'};
 opts_ids = length(varargin);
 Hds.v_skeleton = [];
+Hds.kinect_tstamp = [];
 Hds.v_current_index = 1;
 if opts_ids
     
@@ -223,6 +224,8 @@ Hds.outdir = outdir;
 set(Hds.tf_outdir, 'String', Hds.outcsv)
 
 Hds.outdir = outdir;
+
+% uicontrol(Hds.b_offset);
 % Hds.outbin = [outdir 'tmp.csv'];
 
 guidata(hObject, Hds);
@@ -256,102 +259,6 @@ set_buttons (Hds);
 % if isempty (cur_frame), return;  end
 % axis(Hds.axis_preview);
 display_frame (Hds);
-
-%% Scroll Pad Panel
-% --- Executes on button press in pb_prev, ay, pb_next, pb_last, pb_first
-function pb_scroll_Callback(hObject, ~, Hds) %#ok<DEFNU>
-
-
-culprit_varname = get(hObject,'Tag');   % component event triggered upon
-
-% --- Executes next button press.
-if strcmp(culprit_varname, 'pb_next')
-    
-    video_data = Hds.video_data;  % localize corpus vals
-    
-    % increment index to point at next exemplar in corpus
-    Hds.video_data.current_index = video_data.current_index + 1;
-    
-    % check index stays within bounds, i.e. less than equal to # exemplars
-    if Hds.video_data.current_index > Hds.video_data.nframes
-        % logic governing this source should prevent this, but to ensure ...
-        Hds.video_data.current_index = Hds.video_data.nframes;
-    end
-    
-    % assign next exemplar in corpus
-    %     next_frame = video_data.frames{Hds.video_data.current_index};
-    
-    % update GUI's axis with plot of next exemplar
-    display_frame(Hds); % func call to display, i.e., plot
-    
-    set_display(Hds);
-    
-    
-    % --- Executes previous button press.
-elseif strcmp(culprit_varname, 'pb_prev')
-    
-    video_data = Hds.video_data;  % localize corpus vals
-    
-    if video_data.current_index == 1
-        % check index stays within bounds, i.e. less than equal to # exemplars
-        % if not, re-set GUI component states
-        
-        %         set_gui_components(Hds)
-        
-        set_buttons (Hds)
-        return;
-    else
-        % decrease index to point at next exemplar in corpus
-        Hds.video_data.current_index = video_data.current_index - 1;
-    end
-    % assign next exemplar in corpus
-    %     previous_frame = video_data.frames{Hds.video_data.current_index};
-    
-    % update GUI's axis with plot of next exemplar
-    display_frame(Hds); % func call to display, i.e., plot
-    
-    
-    set_display(Hds);
-    
-    % --- Executes << button press.
-elseif strcmp(culprit_varname, 'pb_first')
-    video_data = Hds.video_data;  % localize corpus vals
-    
-    % set index to 1, i.e., first exemplar
-    Hds.video_data.current_index = 1;
-    
-    % assign 1st exemplar in corpus
-    %     first_frame = video_data.frames{Hds.video_data.current_index};
-    
-    % update GUI's axis with plot of 1st exemplar
-    display_frame(Hds); % func call to display, i.e., plot
-    
-    set_display(Hds);
-    % --- Executes >> button press.
-elseif strcmp(culprit_varname, 'pb_last')
-    
-    video_data = Hds.video_data;  % localize corpus vals
-    
-    % set index to 1, i.e., first exemplar
-    Hds.video_data.current_index = video_data.nframes;
-    
-    % assign 1st exemplar in corpus
-    %     last_exemplar = video_data.frames{Hds.video_data.current_index};
-    
-    % update GUI's axis with plot of 1st exemplar
-    display_frame(Hds); % func call to display, i.e., plot
-    
-    
-    set_display(Hds);
-    % --- Executes add button press.
-end
-Hds.slidebar.Value = Hds.video_data.current_index/Hds.video_data.nframes;
-guidata(hObject, Hds);              % Update Hds structure
-set_buttons(Hds);
-set_display (Hds)
-% set_gui_components(Hds);            % set GUI components [state] and labels
-
-
 
 % --- Executes on when icon from toolbar triggers an event.
 % Determines the icon [culprit] that triggered event by use 'Tag' property.
@@ -459,7 +366,7 @@ if frame_id == 0
 
 else
     
-    Hds.v_skeleton.current_index = round(Hds.v_skeleton.nframes*pos);
+    Hds.v_current_index = round(Hds.v_skeleton.nframes*pos);
         
     Hds.v_current_index = round(Hds.v_skeleton.nframes*pos);
 
@@ -585,73 +492,6 @@ set(Hds.b_end, 'Enable','on');
 guidata(hObject, Hds);              % Update Hds structure
 
 
-% --- Executes on button press in b_end.
-function b_end_Callback(hObject, eventdata, Hds)
-% hObject    handle to b_end (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% Hds    structure with Hds and user data (see GUIDATA)
-action_types = get(Hds.lb_actions,'String');     % get selected item
-ids_selected = get(Hds.lb_actions,'Value');
-
-Hds.video_data.Labels(end) = Hds.video_data.Labels(end).set_end(Hds.video_data.current_index);
-cLabel = Hds.video_data.Labels(end);
-
-% Hds.Palette = Hds.Palette.add(ids_selected, cLabel);
-set(Hds.b_start, 'Enable','on');
-set(Hds.b_end, 'Enable','off');
-
-% dlmwrite('test.csv',N,'delimiter',',','-append');
-contents = {};
-if exist(Hds.outbin, 'file')
-    contents =csv2cell(Hds.outbin,'fromfile');
-end
-% append action label
-contents = [contents; {cLabel.action_type, cLabel.start_frame, cLabel.end_frame}];
-cell2csv(Hds.outbin,contents);
-% nentries = size(contents, 1);
-
-% for x = 1:nentries
-%     cell2csv(Hds.outbin,{cLabel.action_type, cLabel.start_frame, cLabel.end_frame});
-% end
-axes(Hds.axis_color);
-% imshow(Hds.Palette.panel)
-axes(Hds.axis_preview)
-
-items = get(Hds.lb_actions,'String');
-nitems = length(find(cellfun(@isempty,items)==0));
-
-% if ids_selected + 1
-if ids_selected + 1 > nitems
-    set(Hds.lb_actions,'Value', nitems);
-else
-    set(Hds.lb_actions,'Value', ids_selected + 1);
-end
-guidata(hObject, Hds);              % Update Hds structure
-
-
-% --- Executes on button press in b_remove.
-function b_remove_Callback(hObject, eventdata, Hds)
-% hObject    handle to b_remove (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% Hds    structure with Hds and user data (see GUIDATA)
-
-if ~exist(Hds.outbin, 'file')
-    warndlg('No label file found','!! Warning !!')
-end
-actions = Hds.lb_actions.String;
-ids = Hds.lb_actions.Value;
-
-% Construct a questdlg with three options
-choice = questdlg(['Are you sure you want to remove "' actions{ids} '" label(s)?'], ...
-    'WARNING','Yes','No');
-% Handle response
-
-if ~isempty(choice) && strcmp(choice, 'Yes')
-    disp(['Removing ' choice]);
-    Hds = update_action_labels(Hds);
-end
-guidata(hObject, Hds);
-
 
 % --- Executes on button press in tb_play.
 function tb_play_Callback(hObject, eventdata, Hds) %#ok<DEFNU>
@@ -732,7 +572,6 @@ else
 end
 Hds.loaddir = path;
 set(Hds.tf_loaddir, 'String', path);
-
 
 guidata(hObject, Hds);              % Update Hds structure
 set_sample_menu(hObject, Hds);
@@ -875,3 +714,250 @@ function lb_actions_CreateFcn(hObject, eventdata, Hds)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+%% Scroll Pad Panel
+% --- Executes on button press in pb_prev, ay, pb_next, pb_last, pb_first
+function pb_scroll_Callback(hObject, ~, Hds) %#ok<DEFNU>
+
+
+culprit_varname = get(hObject,'Tag');   % component event triggered upon
+
+% --- Executes next button press.
+if strcmp(culprit_varname, 'pb_next')
+    
+    video_data = Hds.video_data;  % localize corpus vals
+    
+    % increment index to point at next exemplar in corpus
+    Hds.video_data.current_index = video_data.current_index + 1;
+    
+    % check index stays within bounds, i.e. less than equal to # exemplars
+    if Hds.video_data.current_index > Hds.video_data.nframes
+        % logic governing this source should prevent this, but to ensure ...
+        Hds.video_data.current_index = Hds.video_data.nframes;
+    end
+    
+    % assign next exemplar in corpus
+    %     next_frame = video_data.frames{Hds.video_data.current_index};
+    
+    % update GUI's axis with plot of next exemplar
+    display_frame(Hds); % func call to display, i.e., plot
+    
+    set_display(Hds);
+    
+    
+    % --- Executes previous button press.
+elseif strcmp(culprit_varname, 'pb_prev')
+    
+    video_data = Hds.video_data;  % localize corpus vals
+    
+    if video_data.current_index == 1
+        % check index stays within bounds, i.e. less than equal to # exemplars
+        % if not, re-set GUI component states
+        
+        %         set_gui_components(Hds)
+        
+        set_buttons (Hds)
+        return;
+    else
+        % decrease index to point at next exemplar in corpus
+        Hds.video_data.current_index = video_data.current_index - 1;
+    end
+    % assign next exemplar in corpus
+    %     previous_frame = video_data.frames{Hds.video_data.current_index};
+    
+    % update GUI's axis with plot of next exemplar
+    display_frame(Hds); % func call to display, i.e., plot
+    
+    
+    set_display(Hds);
+    
+    % --- Executes << button press.
+elseif strcmp(culprit_varname, 'pb_first')
+    video_data = Hds.video_data;  % localize corpus vals
+    
+    % set index to 1, i.e., first exemplar
+    Hds.video_data.current_index = 1;
+    
+    % assign 1st exemplar in corpus
+    %     first_frame = video_data.frames{Hds.video_data.current_index};
+    
+    % update GUI's axis with plot of 1st exemplar
+    display_frame(Hds); % func call to display, i.e., plot
+    
+    set_display(Hds);
+    % --- Executes >> button press.
+elseif strcmp(culprit_varname, 'pb_last')
+    
+    video_data = Hds.video_data;  % localize corpus vals
+    
+    % set index to 1, i.e., first exemplar
+    Hds.video_data.current_index = video_data.nframes;
+    
+    % assign 1st exemplar in corpus
+    %     last_exemplar = video_data.frames{Hds.video_data.current_index};
+    
+    % update GUI's axis with plot of 1st exemplar
+    display_frame(Hds); % func call to display, i.e., plot
+    
+    
+    set_display(Hds);
+    % --- Executes add button press.
+end
+Hds.slidebar.Value = Hds.video_data.current_index/Hds.video_data.nframes;
+guidata(hObject, Hds);              % Update Hds structure
+set_buttons(Hds);
+set_display (Hds)
+% set_gui_components(Hds);            % set GUI components [state] and labels
+
+
+% --- Executes on button press in b_end.
+function b_end_Callback(hObject, eventdata, Hds)
+% hObject    handle to b_end (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% Hds    structure with Hds and user data (see GUIDATA)
+action_types = get(Hds.lb_actions,'String');     % get selected item
+ids_selected = get(Hds.lb_actions,'Value');
+
+Hds.video_data.Labels(end) = Hds.video_data.Labels(end).set_end(Hds.video_data.current_index);
+cLabel = Hds.video_data.Labels(end);
+
+% Hds.Palette = Hds.Palette.add(ids_selected, cLabel);
+set(Hds.b_start, 'Enable','on');
+set(Hds.b_end, 'Enable','off');
+
+% dlmwrite('test.csv',N,'delimiter',',','-append');
+contents = {};
+if exist(Hds.outbin, 'file')
+    contents =csv2cell(Hds.outbin,'fromfile');
+end
+% append action label
+contents = [contents; {cLabel.action_type, cLabel.start_frame, cLabel.end_frame}];
+cell2csv(Hds.outbin,contents);
+% nentries = size(contents, 1);
+
+% for x = 1:nentries
+%     cell2csv(Hds.outbin,{cLabel.action_type, cLabel.start_frame, cLabel.end_frame});
+% end
+axes(Hds.axis_color);
+% imshow(Hds.Palette.panel)
+axes(Hds.axis_preview)
+
+items = get(Hds.lb_actions,'String');
+nitems = length(find(cellfun(@isempty,items)==0));
+
+% if ids_selected + 1
+if ids_selected + 1 > nitems
+    set(Hds.lb_actions,'Value', nitems);
+else
+    set(Hds.lb_actions,'Value', ids_selected + 1);
+end
+guidata(hObject, Hds);              % Update Hds structure
+
+
+% --- Executes during object creation, after setting all properties.
+function tf_offset_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to tf_offset (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+
+function tf_offset_Callback(hObject, eventdata, handles)
+% hObject    handle to tf_offset (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of tf_offset as text
+%        str2double(get(hObject,'String')) returns contents of tf_offset as a double
+
+
+% --- Executes on button press in b_offset.
+function b_offset_Callback(hObject, eventdata, Hds)
+% hObject    handle to b_offset (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+%based on rgb to find vicon frame
+colors=[];
+colors(1:3)='k';
+colors(4:9)='y';
+colors(10:16)='r';
+colors(17:23)='g';
+colors(24:27)='y';
+colors(28:38)='b';
+cut_sec = str2double(Hds.tf_offset.String);
+rgb_frames=Hds.video_data.nframes;
+vicon_start = 1;
+start_rgb_frame = 1;
+%if cut_sec > 0, means cut several start frames of rgb;
+%if cut_sec < 0, means cut several start frames from vicon;
+if cut_sec > 0
+    start_rgb_frame = round(cut_sec * 24);
+elseif cut_sec < 0
+    vicon_start = abs(round(cut_sec * 100));
+end
+ 
+start_rgb_time = Hds.kinect_tstamp{start_rgb_frame};
+vicon_x = vicon_start;
+
+frame_step = 100;
+parts = Hds.v_skeleton.get_parts_str();
+% fhandle = figure(1);
+
+% set(Hds.axis_vicon, 'Position', [0 0 1000 500])
+
+for x = start_rgb_frame:frame_step:rgb_frames
+    
+    %Calculate time cost from first rgb frame to now
+    time_pass = Hds.kinect_tstamp{x}-start_rgb_time;
+    time_cost = time_pass(5)*60+time_pass(6);
+    vicon_change = round(time_cost*100);
+    %If either rgb or vicon frame ran out, break
+    if vicon_start+vicon_change > Hds.v_skeleton.nframes
+        fprintf("Vicon End!\n");
+        fprintf("RGB frame: %d\nVicon frame: %d\n",x-1,vicon_x);
+        break;
+    end
+    fprintf('%d + %d =\n',1,vicon_change);
+    %change add to 1st frame, to avoid error caused by 'round'
+    vicon_x = vicon_start+vicon_change;
+    fprintf('Vicon: %d <====> RGB: %d\n',vicon_x,x);
+    
+    % for each frame (i.e., 100 fps captured by vicon)
+    axes(Hds.axis_vicon);
+    %     subplot(1,2,1);
+    hold on;
+    grid on;
+    axis([-1000,1500,-500,1500,0,2000]);
+    cla(Hds.axis_vicon)
+    
+    
+    for r = 1:Hds.v_skeleton.nparts
+        % for each marker
+        %fprintf(1, 'adding part %s to scatter plot\n', parts{r});
+        
+        coords = Hds.v_skeleton.(parts{r})(vicon_x,:);
+        scatter3(coords(1), coords(2), coords(3),char(colors(r)),'filled');
+    end
+    view(135,30)
+    hold off;
+    
+    %show rgb frame in subplot 2
+    %     subplot(1,2,2);
+    Hds.video_data.current_index = x;
+    display_frame(Hds);
+    %     imshow(rgb_data.image_record{x});
+    
+    pause(0.001)
+    %     pause
+    %     clf(fhandle)
+end
+fprintf("RGB End!\n");
+fprintf("RGB frame: %d\nVicon frame: %d\n",rgb_frames,vicon_x);
