@@ -1,28 +1,31 @@
 function varargout = SkeletonAlignmentViewer(varargin)
 % SkeletonAlignmentViewer MATLAB code for SkeletonAlignmentViewer.fig
-%      SkeletonAlignmentViewer, by itself, creates a new SkeletonAlignmentViewer or raises the existing
-%      singleton*.
+%      SkeletonAlignmentViewer, by itself, creates a new 
+%      SkeletonAlignmentViewer or raises the existing singleton*.
 %
-%      H = SkeletonAlignmentViewer returns the handle to a new SkeletonAlignmentViewer or the handle to
-%      the existing singleton*.
+%      H = SkeletonAlignmentViewer returns the handle to a new 
+%      SkeletonAlignmentViewer or the handle to the existing singleton*.
 %
-%      SkeletonAlignmentViewer('CALLBACK',hObject,eventData,Hds,...) calls the local
-%      function named CALLBACK in SkeletonAlignmentViewer.M with the given input arguments.
+%      SkeletonAlignmentViewer('CALLBACK',hObject,eventData,Hds,...) calls 
+%      the local function named CALLBACK in SkeletonAlignmentViewer.M with 
+%      the given input arguments.
 %
-%      SkeletonAlignmentViewer('Property','Value',...) creates a new SkeletonAlignmentViewer or raises the
-%      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before SkeletonAlignmentViewer_OpeningFcn gets called.  An
-%      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to SkeletonAlignmentViewer_OpeningFcn via varargin.
+%      SkeletonAlignmentViewer('Property','Value',...) creates a new 
+%      SkeletonAlignmentViewer or raises the existing singleton*.  
+%      Starting from the left, property value pairs are applied to the GUI 
+%      before SkeletonAlignmentViewer_OpeningFcn gets called. An 
+%      unrecognized property name or invalid value makes property 
+%      application stop.  All inputs are passed to 
+%      SkeletonAlignmentViewer_OpeningFcn via varargin.
 %
 %      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
 %      instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% Edit the above text to modify the response to help SkeletonAlignmentViewer
+% Edit above text to modify the response to help SkeletonAlignmentViewer
 
-% Last Modified by GUIDE v2.5 09-Mar-2018 19:11:13
+% Last Modified by GUIDE v2.5 09-Mar-2018 20:44:55
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -53,46 +56,7 @@ if nargin
         if length(varargin{2}) > 1
             parse_opts = true;
         end
-    end
-    %     if length(varargin{1}) == 2 && strcmp(varargin{1}{1}, '.mat')
-    
-    
-    
-    if parse_opts || (length(varargin{1}) > 1 && any(~strcmp(varargin{1}, 'lb_actions_CreateFcn')))
-        mapObj = containers.Map(varargin{1}(1:2:end),varargin{1}(2:2:end),'UniformValues',false);
-        keySet = mapObj.keys;
-        setValues = mapObj.values;
-        video_data = [];
-        datadir = [];
-        filename = [];
-        outfile = [];
-        %         images = [];
-        for x = 1:length(keySet)
-            ids = find(strcmp(keySet{x}, opt_args));
-            if ids
-                switch keySet{x}
-                    case 'datadir'
-                        datadir = setValues{x};
-                    case 'filename'
-                        filename = setValues{x};
-                    case 'outfile'
-                        outfile = setValues{x};
-                    otherwise
-                        fprintf(1, 'SkeletonAlignmentViewer(): Unknown key %s', keySet{x});
-                end
-            end
-        end
-        if ~isempty(filename) && ~isempty(datadir)
-            fpath = [datadir filename '.mat'];
-            load(fpath, 'image_record')
-            video_data = Video(image_record, fpath);% times, metadata, depth);
-        end
-        %         Hds.datadir = datadir;
-        %         Hds.filename = filename;
-        %         Hds.outfile = outfile;
-        %         Hds.video_data = video_data;
-    end
-    
+    end    
 end
 if nargout
     [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
@@ -100,6 +64,7 @@ else
     gui_mainfcn(gui_State, varargin{:});
 end
 % End initialization code - DO NOT EDIT
+
 
 
 % --- Executes just before SkeletonAlignmentViewer is made visible.
@@ -218,6 +183,8 @@ userhome = [utils.getuserhome() filesep];
 outdir = [fullfile(userhome, 'Dropbox'), filesep];
 
 Hds.outcsv = fullfile(userhome, 'Dropbox', 'alignments.csv');
+Hds.outcsv2 = fullfile(userhome, 'Dropbox', 'skeleton_cuts.csv');
+
 
 Hds.outdir = outdir;
 
@@ -249,12 +216,6 @@ function pb_load_Callback(hObject, ~, Hds)       %#ok<DEFNU>
 Hds = load_video(hObject, Hds);
 set_display (Hds);
 set_buttons (Hds);
-
-% if ~isempty(Hds.video_data)
-%     Hds.Palette  = ColorPalette(Hds.video_data.nframes);
-% else
-%     Hds.Palette  = ColorPalette(10000);
-% end
 
 % if isempty (cur_frame), return;  end
 % axis(Hds.axis_preview);
@@ -317,9 +278,6 @@ switch culprit
         figAbout();
 end
 
-
-
-
 % --- Executes on button press in pb_save.
 function save_Callback(hObject, ~, Hds) %#ok<DEFNU>
 % hObject    handle to pb_new (see GCBO)
@@ -361,15 +319,9 @@ if isempty(Hds.v_skeleton), return; end
 pos = hObject.Value;
 frame_id = round(Hds.v_skeleton.nframes*pos);
 if frame_id == 0
-    Hds.v_skeleton.current_index = 1;
     Hds.v_current_index = 1;
-
 else
-    
     Hds.v_current_index = round(Hds.v_skeleton.nframes*pos);
-        
-    Hds.v_current_index = round(Hds.v_skeleton.nframes*pos);
-
 end
 
 display_vicon_frame(Hds);
@@ -397,12 +349,9 @@ else
     
     Hds.video_data.current_index = round(Hds.video_data.nframes*pos);
 end
-
 display_frame(Hds);
-% set_buttons(Hds);
 set_display (Hds);
 guidata(hObject, Hds);              % Update Hds structure
-
 
 
 % --------------------------------------------------------------------
@@ -412,13 +361,6 @@ function icon_load_ClickedCallback(hObject, eventdata, Hds)
 % Hds    structure with Hds and user data (see GUIDATA)
 Hds = load_video(hObject, Hds);
 
-% if ~isempty(Hds.video_data)
-%     Hds.Palette  = ColorPalette(Hds.video_data.nframes);
-% else
-%     Hds.Palette  = ColorPalette(10000);
-% end
-
-axes(Hds.axis_color);
 % imshow(Hds.Palette.panel)
 axes(Hds.axis_preview)
 
@@ -442,16 +384,10 @@ set(Hds.tf_outdir, 'String', Hds.outdir);
 % set(Hds.tf_outdir, 'String', Hds.outdir)
 
 
-% if ~exist(Hds.outdir, 'dir')
-%     mkdir(Hds.outdir);
-% end
-
 % if isempty (cur_frame), return;  end
 % axis(Hds.axis_preview);
 display_frame (Hds);
 guidata(hObject, Hds);              % Update Hds structure
-
-
 
 
 % --- Executes on button press in b_start.
@@ -471,7 +407,6 @@ frame_id = round(Hds.video_data.nframes*pos);
 if frame_id == 0
     Hds.video_data.current_index = 1;
 else
-    
     Hds.video_data.current_index = round(Hds.video_data.nframes*pos);
 end
 cLabel.start_frame = Hds.video_data.current_index;
@@ -576,7 +511,7 @@ set(Hds.tf_loaddir, 'String', path);
 guidata(hObject, Hds);              % Update Hds structure
 set_sample_menu(hObject, Hds);
 initialize_output_file(Hds);
-
+initialize_cuts_file(Hds);
 % --- Executes on button press in b_select.
 function b_select_Callback(hObject, eventdata, Hds)
 % hObject    handle to b_select (see GCBO)
@@ -585,16 +520,20 @@ function b_select_Callback(hObject, eventdata, Hds)
 outdir = get(Hds.tf_outdir,'String');
 
 if isdir(outdir)
-    path = uigetdir(outdir,'Directory Selector');
+    [path, dir1] = uiputfile(outdir,'File Selector');
 else
-    path = uigetdir(utils.getuserhome(),'Directory Selector');
+    cur_dir = pwd;
+    [path, dir1] = uiputfile([cur_dir filesep '*.csv'],'File Selector');
 end
 if  path == 0
     disp('Cancel Selected')
-    return;
-else
-    path = strcat(path, '/');
+    return;    
 end
+
+Hds.outcsv = fullfile(dir1, path);
+Hds.outcsv2 = fullfile(dir1, 'skeleton_cuts.csv');
+
+path = strcat(path, '/');
 Hds.outdir = path;
 set(Hds.tf_outdir, 'String', path);
 guidata(hObject, Hds);              % Update Hds structure
@@ -885,20 +824,24 @@ function b_offset_Callback(hObject, eventdata, Hds)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 %based on rgb to find vicon frame
-colors=[];
-colors(1:3)='k';
-colors(4:9)='y';
-colors(10:16)='r';
-colors(17:23)='g';
-colors(24:27)='y';
-colors(28:38)='b';
+
+if isempty(Hds.video_data), return; end
+
+str_frame_step = Hds.tf_stepsize.String;
+frame_step = 2.0;           % default frame step size
+if ~isempty(str_frame_step) && ~isnan(str2double(str_frame_step))
+    frame_step = str2double(str_frame_step);
+else
+    set(Hds.tf_stepsize, 'String', '2.0');
+end
+
 cut_sec = str2double(Hds.tf_offset.String);
 rgb_frames=Hds.video_data.nframes;
-vicon_start = 1;
-start_rgb_frame = 1;
+start_rgb_frame = Hds.video_data.current_index;
 %if cut_sec > 0, means cut several start frames of rgb;
 %if cut_sec < 0, means cut several start frames from vicon;
 if cut_sec > 0
+    vicon_start = 1;
     start_rgb_frame = round(cut_sec * 24);
 elseif cut_sec < 0
     vicon_start = abs(round(cut_sec * 100));
@@ -907,57 +850,99 @@ end
 start_rgb_time = Hds.kinect_tstamp{start_rgb_frame};
 vicon_x = vicon_start;
 
-frame_step = 100;
-parts = Hds.v_skeleton.get_parts_str();
-% fhandle = figure(1);
+% parts = Hds.v_skeleton.get_parts_str();
 
 % set(Hds.axis_vicon, 'Position', [0 0 1000 500])
 
-for x = start_rgb_frame:frame_step:rgb_frames
+cframe = start_rgb_frame;
+nsteps = 0;
+while cframe <= rgb_frames && nsteps < 15
+    % for x = start_rgb_frame:frame_step:rgb_frames
     
+    %     if Hds.cb_kill.Value == 1
+    %         break;
+    %     end
     %Calculate time cost from first rgb frame to now
-    time_pass = Hds.kinect_tstamp{x}-start_rgb_time;
+    time_pass = Hds.kinect_tstamp{cframe}-start_rgb_time;
     time_cost = time_pass(5)*60+time_pass(6);
     vicon_change = round(time_cost*100);
-    %If either rgb or vicon frame ran out, break
+
     if vicon_start+vicon_change > Hds.v_skeleton.nframes
-        fprintf("Vicon End!\n");
-        fprintf("RGB frame: %d\nVicon frame: %d\n",x-1,vicon_x);
+        % If either rgb or vicon frame ran out, break
+        fprintf('Vicon End!\n');
+        fprintf('RGB frame: %d\nVicon frame: %d\n',cframe-1,vicon_x);
         break;
     end
-    fprintf('%d + %d =\n',1,vicon_change);
+    
+    fprintf('%d + %d =\n', 1, vicon_change);
     %change add to 1st frame, to avoid error caused by 'round'
     vicon_x = vicon_start+vicon_change;
-    fprintf('Vicon: %d <====> RGB: %d\n',vicon_x,x);
+    fprintf('Vicon: %d <====> RGB: %d\n',vicon_x,cframe);
     
-    % for each frame (i.e., 100 fps captured by vicon)
+    
+    
+    %     Hds.v_skeleton.display(Hds.axis_vicon);
+    
+    Hds.v_skeleton.current_index = vicon_x;
     axes(Hds.axis_vicon);
-    %     subplot(1,2,1);
-    hold on;
-    grid on;
-    axis([-1000,1500,-500,1500,0,2000]);
-    cla(Hds.axis_vicon)
+    cla(Hds.axis_vicon);
+    Hds.v_skeleton.display();
+    % for each frame (i.e., 100 fps captured by vicon)
+    %     axes(Hds.axis_vicon);
+    %     hold on;
+    %     grid on;
+    %     axis([-1000,1500,-500,1500,0,2000]);
+    %     cla(Hds.axis_vicon)
+    %     Hds.v_skeleton.current_index = vicon_x;
     
-    
-    for r = 1:Hds.v_skeleton.nparts
-        % for each marker
-        %fprintf(1, 'adding part %s to scatter plot\n', parts{r});
-        
-        coords = Hds.v_skeleton.(parts{r})(vicon_x,:);
-        scatter3(coords(1), coords(2), coords(3),char(colors(r)),'filled');
-    end
-    view(135,30)
-    hold off;
+    %     for r = 1:Hds.v_skeleton.nparts
+    %         % for each marker
+    %         coords = Hds.v_skeleton.(parts{r})(vicon_x,:);
+    %         scatter3(coords(1), coords(2), coords(3),char(...
+    %             Hds.v_skeleton.colors(r)),'filled');
+    %     end
+
     
     %show rgb frame in subplot 2
-    %     subplot(1,2,2);
-    Hds.video_data.current_index = x;
+    Hds.video_data.current_index = cframe;
     display_frame(Hds);
-    %     imshow(rgb_data.image_record{x});
     
     pause(0.001)
-    %     pause
+    cframe = cframe + frame_step;
     %     clf(fhandle)
+    nsteps = nsteps + 1;
 end
-fprintf("RGB End!\n");
-fprintf("RGB frame: %d\nVicon frame: %d\n",rgb_frames,vicon_x);
+fprintf('RGB End!\n');
+fprintf('RGB frame: %d\nVicon frame: %d\n',rgb_frames,vicon_x);
+
+
+
+function tf_stepsize_Callback(hObject, eventdata, handles)
+% hObject    handle to tf_stepsize (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of tf_stepsize as text
+%        str2double(get(hObject,'String')) returns contents of tf_stepsize as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function tf_stepsize_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to tf_stepsize (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in cb_kill.
+function cb_kill_Callback(hObject, eventdata, handles)
+% hObject    handle to cb_kill (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of cb_kill
