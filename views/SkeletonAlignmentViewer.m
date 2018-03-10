@@ -22,7 +22,7 @@ function varargout = SkeletonAlignmentViewer(varargin)
 
 % Edit the above text to modify the response to help SkeletonAlignmentViewer
 
-% Last Modified by GUIDE v2.5 09-Mar-2018 19:11:13
+% Last Modified by GUIDE v2.5 09-Mar-2018 20:26:46
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -892,6 +892,15 @@ colors(10:16)='r';
 colors(17:23)='g';
 colors(24:27)='y';
 colors(28:38)='b';
+str_frame_step = Hds.tf_stepsize.String;
+frame_step = 2.0;
+if ~isempty(str_frame_step) && ~isnan(str2double(str_frame_step))
+    frame_step = str2double(str_frame_step);
+else
+    set(Hds.tf_stepsize, 'String', '2.0');
+end
+    
+
 cut_sec = str2double(Hds.tf_offset.String);
 rgb_frames=Hds.video_data.nframes;
 vicon_start = 1;
@@ -907,7 +916,6 @@ end
 start_rgb_time = Hds.kinect_tstamp{start_rgb_frame};
 vicon_x = vicon_start;
 
-frame_step = 100;
 parts = Hds.v_skeleton.get_parts_str();
 % fhandle = figure(1);
 
@@ -961,3 +969,26 @@ for x = start_rgb_frame:frame_step:rgb_frames
 end
 fprintf("RGB End!\n");
 fprintf("RGB frame: %d\nVicon frame: %d\n",rgb_frames,vicon_x);
+
+
+
+function tf_stepsize_Callback(hObject, eventdata, handles)
+% hObject    handle to tf_stepsize (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of tf_stepsize as text
+%        str2double(get(hObject,'String')) returns contents of tf_stepsize as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function tf_stepsize_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to tf_stepsize (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
