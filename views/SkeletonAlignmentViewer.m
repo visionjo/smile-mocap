@@ -25,7 +25,7 @@ function varargout = SkeletonAlignmentViewer(varargin)
 
 % Edit above text to modify the response to help SkeletonAlignmentViewer
 
-% Last Modified by GUIDE v2.5 09-Mar-2018 20:44:55
+% Last Modified by GUIDE v2.5 10-Mar-2018 04:41:47
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -838,15 +838,15 @@ end
 cut_sec = str2double(Hds.tf_offset.String);
 rgb_frames=Hds.video_data.nframes;
 start_rgb_frame = Hds.video_data.current_index;
+vicon_start = 1;
 %if cut_sec > 0, means cut several start frames of rgb;
 %if cut_sec < 0, means cut several start frames from vicon;
 if cut_sec > 0
-    vicon_start = 1;
     start_rgb_frame = round(cut_sec * 24);
 elseif cut_sec < 0
     vicon_start = abs(round(cut_sec * 100));
 end
- 
+
 start_rgb_time = Hds.kinect_tstamp{start_rgb_frame};
 vicon_x = vicon_start;
 
@@ -856,12 +856,11 @@ vicon_x = vicon_start;
 
 cframe = start_rgb_frame;
 nsteps = 0;
-while cframe <= rgb_frames && nsteps < 15
+% get number of frames to step through
+ulimit = str2double(Hds.menu_nsteps.String{Hds.menu_nsteps.Value});
+while cframe <= rgb_frames && nsteps < ulimit
     % for x = start_rgb_frame:frame_step:rgb_frames
     
-    %     if Hds.cb_kill.Value == 1
-    %         break;
-    %     end
     %Calculate time cost from first rgb frame to now
     time_pass = Hds.kinect_tstamp{cframe}-start_rgb_time;
     time_cost = time_pass(5)*60+time_pass(6);
@@ -879,30 +878,11 @@ while cframe <= rgb_frames && nsteps < 15
     vicon_x = vicon_start+vicon_change;
     fprintf('Vicon: %d <====> RGB: %d\n',vicon_x,cframe);
     
-    
-    
-    %     Hds.v_skeleton.display(Hds.axis_vicon);
-    
     Hds.v_skeleton.current_index = vicon_x;
     axes(Hds.axis_vicon);
     cla(Hds.axis_vicon);
     Hds.v_skeleton.display();
-    % for each frame (i.e., 100 fps captured by vicon)
-    %     axes(Hds.axis_vicon);
-    %     hold on;
-    %     grid on;
-    %     axis([-1000,1500,-500,1500,0,2000]);
-    %     cla(Hds.axis_vicon)
-    %     Hds.v_skeleton.current_index = vicon_x;
-    
-    %     for r = 1:Hds.v_skeleton.nparts
-    %         % for each marker
-    %         coords = Hds.v_skeleton.(parts{r})(vicon_x,:);
-    %         scatter3(coords(1), coords(2), coords(3),char(...
-    %             Hds.v_skeleton.colors(r)),'filled');
-    %     end
-
-    
+ 
     %show rgb frame in subplot 2
     Hds.video_data.current_index = cframe;
     display_frame(Hds);
@@ -946,3 +926,26 @@ function cb_kill_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of cb_kill
+
+
+% --- Executes on selection change in menu_nsteps.
+function menu_nsteps_Callback(hObject, eventdata, handles)
+% hObject    handle to menu_nsteps (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns menu_nsteps contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from menu_nsteps
+
+
+% --- Executes during object creation, after setting all properties.
+function menu_nsteps_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to menu_nsteps (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end

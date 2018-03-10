@@ -275,8 +275,6 @@ classdef ViconSkeleton
         end
         
         function display(obj)
-            
-
             hold on;
             grid on;
             axis([-1000,1500,-500,1500,0,2000]);
