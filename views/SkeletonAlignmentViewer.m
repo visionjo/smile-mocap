@@ -1,26 +1,29 @@
 function varargout = SkeletonAlignmentViewer(varargin)
 % SkeletonAlignmentViewer MATLAB code for SkeletonAlignmentViewer.fig
-%      SkeletonAlignmentViewer, by itself, creates a new SkeletonAlignmentViewer or raises the existing
-%      singleton*.
+%      SkeletonAlignmentViewer, by itself, creates a new 
+%      SkeletonAlignmentViewer or raises the existing singleton*.
 %
-%      H = SkeletonAlignmentViewer returns the handle to a new SkeletonAlignmentViewer or the handle to
-%      the existing singleton*.
+%      H = SkeletonAlignmentViewer returns the handle to a new 
+%      SkeletonAlignmentViewer or the handle to the existing singleton*.
 %
-%      SkeletonAlignmentViewer('CALLBACK',hObject,eventData,Hds,...) calls the local
-%      function named CALLBACK in SkeletonAlignmentViewer.M with the given input arguments.
+%      SkeletonAlignmentViewer('CALLBACK',hObject,eventData,Hds,...) calls 
+%      the local function named CALLBACK in SkeletonAlignmentViewer.M with 
+%      the given input arguments.
 %
-%      SkeletonAlignmentViewer('Property','Value',...) creates a new SkeletonAlignmentViewer or raises the
-%      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before SkeletonAlignmentViewer_OpeningFcn gets called.  An
-%      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to SkeletonAlignmentViewer_OpeningFcn via varargin.
+%      SkeletonAlignmentViewer('Property','Value',...) creates a new 
+%      SkeletonAlignmentViewer or raises the existing singleton*.  
+%      Starting from the left, property value pairs are applied to the GUI 
+%      before SkeletonAlignmentViewer_OpeningFcn gets called. An 
+%      unrecognized property name or invalid value makes property 
+%      application stop.  All inputs are passed to 
+%      SkeletonAlignmentViewer_OpeningFcn via varargin.
 %
 %      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
 %      instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% Edit the above text to modify the response to help SkeletonAlignmentViewer
+% Edit above text to modify the response to help SkeletonAlignmentViewer
 
 % Last Modified by GUIDE v2.5 09-Mar-2018 20:44:55
 
@@ -317,9 +320,6 @@ switch culprit
         figAbout();
 end
 
-
-
-
 % --- Executes on button press in pb_save.
 function save_Callback(hObject, ~, Hds) %#ok<DEFNU>
 % hObject    handle to pb_new (see GCBO)
@@ -585,16 +585,19 @@ function b_select_Callback(hObject, eventdata, Hds)
 outdir = get(Hds.tf_outdir,'String');
 
 if isdir(outdir)
-    path = uigetdir(outdir,'Directory Selector');
+    [path, dir1] = uiputfile(outdir,'File Selector');
 else
-    path = uigetdir(utils.getuserhome(),'Directory Selector');
+    cur_dir = pwd;
+    [path, dir1] = uiputfile([cur_dir filesep '*.csv'],'File Selector');
 end
 if  path == 0
     disp('Cancel Selected')
-    return;
-else
-    path = strcat(path, '/');
+    return;    
 end
+
+Hds.outcsv = fullfile(dir1, path);
+
+path = strcat(path, '/');
 Hds.outdir = path;
 set(Hds.tf_outdir, 'String', path);
 guidata(hObject, Hds);              % Update Hds structure
