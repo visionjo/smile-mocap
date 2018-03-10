@@ -25,7 +25,7 @@ function varargout = SkeletonAlignmentViewer(varargin)
 
 % Edit above text to modify the response to help SkeletonAlignmentViewer
 
-% Last Modified by GUIDE v2.5 10-Mar-2018 04:41:47
+% Last Modified by GUIDE v2.5 10-Mar-2018 05:15:55
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -93,6 +93,7 @@ if any(strcmp(sFigureNames,'SkeletonAlignmentViewer')&strcmp(sVisible,'on'))
     end
     
 end
+set(0,'userdata',1)
 
 tmp = fileparts(which('SkeletonAlignmentViewer'));
 
@@ -553,8 +554,11 @@ function menu_samples_Callback(hObject, eventdata, Hds)
 % if (length(samps) == 7) && strcmp(samps, 'Samples')
 %     return;
 % end
+open_video(hObject, Hds);
 
-[cell_tag, do_display] = get_current_sample_string(Hds);
+
+function open_video(hObject, Hds)
+[cell_tag, ~, do_display] = get_current_sample_string(Hds);
 if ~do_display
     return;
 end
@@ -567,7 +571,7 @@ function b_tag_Callback(hObject, ~, Hds)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-[cell_tag, do_display] = get_current_sample_string(Hds);
+[cell_tag, ~, do_display] = get_current_sample_string(Hds);
 if ~do_display
     return;
 end
@@ -824,6 +828,7 @@ function b_offset_Callback(hObject, eventdata, Hds)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 %based on rgb to find vicon frame
+% set(0,'userdata',1);
 
 if isempty(Hds.video_data), return; end
 
@@ -837,6 +842,8 @@ end
 
 cut_sec = str2double(Hds.tf_offset.String);
 rgb_frames=Hds.video_data.nframes;
+vicon_frames = Hds.v_skeleton.nframes;
+
 start_rgb_frame = Hds.video_data.current_index;
 vicon_start = 1;
 %if cut_sec > 0, means cut several start frames of rgb;
@@ -858,24 +865,18 @@ cframe = start_rgb_frame;
 nsteps = 0;
 % get number of frames to step through
 ulimit = str2double(Hds.menu_nsteps.String{Hds.menu_nsteps.Value});
-while cframe <= rgb_frames && nsteps < ulimit
+while cframe <= rgb_frames && nsteps < ulimit && vicon_x <= vicon_frames
     % for x = start_rgb_frame:frame_step:rgb_frames
+    %     if vicon_x > Hds.v_skeleton.nframes
+    %         % If either rgb or vicon frame ran out, break
+    %         fprintf('Vicon End!\n');
+    %         fprintf('RGB frame: %d\nVicon frame: %d\n',cframe,vicon_x);
+    %         break;
+    %     end
     
-    %Calculate time cost from first rgb frame to now
-    time_pass = Hds.kinect_tstamp{cframe}-start_rgb_time;
-    time_cost = time_pass(5)*60+time_pass(6);
-    vicon_change = round(time_cost*100);
-
-    if vicon_start+vicon_change > Hds.v_skeleton.nframes
-        % If either rgb or vicon frame ran out, break
-        fprintf('Vicon End!\n');
-        fprintf('RGB frame: %d\nVicon frame: %d\n',cframe-1,vicon_x);
-        break;
-    end
-    
-    fprintf('%d + %d =\n', 1, vicon_change);
+    %     fprintf('%d + %d =\n', 1, vicon_change);
     %change add to 1st frame, to avoid error caused by 'round'
-    vicon_x = vicon_start+vicon_change;
+    
     fprintf('Vicon: %d <====> RGB: %d\n',vicon_x,cframe);
     
     Hds.v_skeleton.current_index = vicon_x;
@@ -889,11 +890,20 @@ while cframe <= rgb_frames && nsteps < ulimit
     
     pause(0.001)
     cframe = cframe + frame_step;
-    %     clf(fhandle)
+
     nsteps = nsteps + 1;
+    
+    %Calculate time cost from first rgb frame to now
+    time_pass = Hds.kinect_tstamp{cframe}-start_rgb_time;
+    time_cost = time_pass(5)*60+time_pass(6);
+    vicon_change = round(time_cost*100);
+    
+    vicon_x = vicon_start+vicon_change;
 end
-fprintf('RGB End!\n');
-fprintf('RGB frame: %d\nVicon frame: %d\n',rgb_frames,vicon_x);
+% fprintf('RGB End!\n');
+fprintf('End!\n');
+
+% fprintf('RGB frame: %d\nVicon frame: %d\n',rgb_frames,vicon_x);
 
 
 
@@ -949,3 +959,33 @@ function menu_nsteps_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in b_next.
+function b_next_Callback(hObject, eventdata, Hds)
+% hObject    handle to b_next (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+[cell_tag, ids_tag, do_display] = get_current_sample_string(Hds);
+if ~do_display, return; end
+samps = Hds.menu_samples.String;
+
+if ids_tag < length(samps)
+    fprintf(1, 'Opening next video\n');
+    ids_tag = ids_tag + 1;
+    set(Hds.menu_samples, 'Value', ids_tag);
+    %     notify('menu_samples')
+    guidata(hObject, Hds);              % Update Hds structure
+    open_video(hObject, Hds);
+else
+    warndlg('Last clip in queue','!! Warning !!')
+end
+    
+
+% --- Executes on button press in cb_do_next.
+function cb_do_next_Callback(hObject, eventdata, handles)
+% hObject    handle to cb_do_next (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of cb_do_next

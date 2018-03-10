@@ -1,4 +1,4 @@
-function [dsamps, do_display] = get_current_sample_string(Hds)
+function [dsamps, ids, do_display] = get_current_sample_string(Hds)
 %GET_CURRENT_SAMPLE_STRING is simple function that gets and returns string
 %of current sample being displayed. The assumption is that current sample
 %is properly displayed according to the drop-down menu in GUI.
