@@ -4,6 +4,17 @@ function Hds = load_vicon(hObject, Hds, current_sample)
 vicondir = [Hds.loaddir filesep 'vicon_data' filesep 'skeleton' filesep];
 fpath = [vicondir current_sample '.csv'];
 
+vicondir2 = [Hds.loaddir filesep 'vicon_data' filesep 'skeleton' filesep];
+fpath2 = [vicondir2 current_sample '.csv'];
+
+if exist(fpath2, 'file')
+    %     utils.csv2cell(
+    Hds.skel_missing = utils.csv2cell(fpath2, 'fromfile');
+else
+    Hds.skel_missing = [];
+end
+
+
 if ~exist(fpath, 'file'), return; 	end
 
 fprintf(1, 'loading vicon (skeleton) data: %s\n', fpath);
