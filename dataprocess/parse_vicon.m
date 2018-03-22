@@ -14,6 +14,7 @@ function [emg_table, skel_table] = parse_vicon(f_vicon)
 % TODO dynamically set output directory
 %
 
+ 
 token = 'Frame';
 n_emg_sensors = 4;
 

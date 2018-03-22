@@ -1,5 +1,9 @@
 function display_vicon_frame(Hds)
 
+if Hds.cb_scatter.Value
+    display_vicon_missing(Hds);
+    return;
+end
 parts = Hds.v_skeleton.get_parts_str();
 cla(Hds.axis_vicon)
 axes(Hds.axis_vicon);

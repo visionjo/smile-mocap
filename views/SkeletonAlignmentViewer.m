@@ -25,7 +25,7 @@ function varargout = SkeletonAlignmentViewer(varargin)
 
 % Edit above text to modify the response to help SkeletonAlignmentViewer
 
-% Last Modified by GUIDE v2.5 10-Mar-2018 05:15:55
+% Last Modified by GUIDE v2.5 22-Mar-2018 15:44:24
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -989,3 +989,12 @@ function cb_do_next_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of cb_do_next
+
+
+% --- Executes on button press in cb_scatter.
+function cb_scatter_Callback(hObject, eventdata, handles)
+% hObject    handle to cb_scatter (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of cb_scatter
