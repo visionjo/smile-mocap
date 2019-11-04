@@ -2,7 +2,7 @@
 ## Overview
 Source code for MATLAB GUI used to generate ground-truth labels motion capture data. In all, labeling this data consists of a 2-step process: (1) annotating the RGB data that was captured by the Kinect sensor with action tags, and (2) aligning the data clips captured by the Kinect sensor and Vicon system such that the correct action labels propagate across the different modalities.
 
-[![Data Project Page]](https://github.com/wanglichenxj/EV-Action-Electromyography-Vision-Multi-Modal-Action-Dataset)
+[Data Project Page](https://github.com/wanglichenxj/EV-Action-Electromyography-Vision-Multi-Modal-Action-Dataset)
 
 
 ## Action Class Annotator
